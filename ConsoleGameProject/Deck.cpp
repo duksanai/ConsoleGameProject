@@ -44,6 +44,14 @@ void Deck::UsedCards(std::vector<PlayingCard*> usedCards)
 	}
 }
 
+void Deck::RestoreDeck()
+{
+	for (auto& card : usedCards)
+	{
+		deck.push_back(card);
+	}
+}
+
 void Deck::Shuffle()
 {
 	std::random_device rd;

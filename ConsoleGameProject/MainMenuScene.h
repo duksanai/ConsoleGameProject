@@ -10,7 +10,6 @@ public:
 private:
 	void PrintMainMenu()const;
 private:
-	int select;
 	DeckSelectScene deckSelectScene;
 };
 

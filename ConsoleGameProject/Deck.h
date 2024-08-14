@@ -3,6 +3,7 @@
 #include <map>
 #include <random>
 #include "PlayingCard.h"
+#include "Hand.h"
 
 class Deck
 {
@@ -12,6 +13,7 @@ public:
 	void DestroyCard(PlayingCard* card);
 	void ChangeCard(PlayingCard* oldCard, PlayingCard* newCard);
 	void UsedCards(std::vector<PlayingCard*> usedCards);
+	void RestoreDeck();
 	void Shuffle();
 	void InitCardMap();
 	void CountCards();

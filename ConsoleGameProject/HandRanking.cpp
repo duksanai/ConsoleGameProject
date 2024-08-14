@@ -21,3 +21,18 @@ void HandRanking::LevelDown(int level, int chip, int multiple)
 		this->multiple -= multiple;
 	}
 }
+
+int HandRanking::getChip()const
+{
+	return chip;
+}
+
+int HandRanking::getMultiple()const
+{
+	return multiple;
+}
+
+int HandRanking::getLevel()const
+{
+	return level;
+}

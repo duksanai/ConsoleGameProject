@@ -1,5 +1,4 @@
 #pragma once
-#include <list>
 
 #include "Deck.h"
 #include "PlayerStatus.h"
@@ -10,13 +9,14 @@ class GameScene
 {
 public:
 	void GameInit(Deck deck);
+	void GameStart();
 	void StartBlind();
 	void Cursor();
 private:
-	PlayerStatus status;
+	PlayerStatus* status;
+	StageInfo* stageInfo;
 	Deck deck;
 	Hand hand;
-	StageInfo stageInfo;
-	std::list<PlayingCard*> selectedCard;
+	std::vector<PlayingCard*> selectedCard;
 };
 
