@@ -10,7 +10,7 @@ class GameScene
 {
 public:
 	void GameInit(Deck deck);
-	void Start();
+	void StartBlind();
 	void Cursor();
 private:
 	PlayerStatus status;

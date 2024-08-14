@@ -1,11 +1,18 @@
 #pragma once
 #include <iostream>
 
+struct CardType
+{
+	CardType(const std::string& shape, const int number) :shape(shape), number(number) {}
+	std::string shape;
+	int number;
+};
+
 class PlayingCard
 {
 public:
-	
-
+	PlayingCard(const std::string& shape, const int number, const int chip);
+	CardType getCardType();
 private:
 	std::string shape;
 	int number;

@@ -143,6 +143,7 @@
     <ClCompile Include="GameScene.cpp" />
     <ClCompile Include="Hand.cpp" />
     <ClCompile Include="HandRanking.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="MainMenuScene.cpp" />
     <ClCompile Include="PlayerStatus.cpp" />
     <ClCompile Include="PlayingCard.cpp" />

@@ -8,6 +8,8 @@ class MainMenuScene
 public:
 	void SelectMode();
 private:
+	void PrintMainMenu()const;
+private:
 	int select;
 	DeckSelectScene deckSelectScene;
 };

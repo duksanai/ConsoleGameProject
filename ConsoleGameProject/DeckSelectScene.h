@@ -6,9 +6,10 @@
 class DeckSelectScene
 {
 public:
-	Deck DeckInit(int inputNum);
 	void SelectDeck();
-
+private:
+	Deck DeckInit();
+	void PrintDeckSelect()const;
 private:
 	Deck deck;
 	GameScene game;
