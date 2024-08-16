@@ -1,11 +1,13 @@
 #include "MainMenuScene.h"
 
 
-void main()
+int main()
 {
 	MainMenuScene mainMenu;
 	while (true)
 	{
 		mainMenu.SelectMode();
 	}
+
+	return 0;
 }

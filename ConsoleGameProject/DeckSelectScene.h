@@ -14,5 +14,6 @@ private:
 	Deck deck;
 	GameScene game;
 	int select;
+	bool out;
 };
 

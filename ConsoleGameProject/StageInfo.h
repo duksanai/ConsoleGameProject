@@ -4,13 +4,16 @@
 class StageInfo
 {
 public:
-	StageInfo(const std::string& blind, const int antie, const int round, const int scoreDeadLine);
+	StageInfo(const std::string& blind, const int antie, const int scoreDeadLine);
 public:
 	void PrintStageInfo()const;
+	int getAntie()const;
+	std::string getBlind()const;
+	int getScoreDeadLine()const;
 private:
 	std::string blind;
 	int antie;
-	int round;
 	int scoreDeadLine;
+	bool isClear;
 };
 

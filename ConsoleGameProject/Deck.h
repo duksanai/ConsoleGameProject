@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <map>
+#include <utility>
 #include <random>
 #include "PlayingCard.h"
 #include "Hand.h"
@@ -17,8 +18,10 @@ public:
 	void Shuffle();
 	void InitCardMap();
 	void CountCards();
+	PlayingCard* PopCard();
+
 private:
-	std::vector<PlayingCard*> deck;
+	std::vector<PlayingCard*> cards;
 	std::vector<PlayingCard*>::iterator iter;
 	std::vector<PlayingCard*> usedCards;
 	std::map<CardType, int> cardStock;

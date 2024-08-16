@@ -2,15 +2,17 @@
 
 void MainMenuScene::SelectMode()
 {
+    system("cls");
     PrintMainMenu();
     int key;
     key = _getch();
     switch (key)
     {
     case 49:
+        system("cls");
         deckSelectScene.SelectDeck();
     case 50:
-        return;
+        exit(0);
     }
 }
 

@@ -15,7 +15,9 @@ public:
 	void DiscardCountPlus(const int num);
 	void HandPlus(const int num);
 	void InitHandRanking();
-
+	int getHand()const;
+	int getHandCount()const;
+	int getDiscardCount()const;
 private:
 	std::map<std::string, HandRanking> handRankings;
 	int handCount;

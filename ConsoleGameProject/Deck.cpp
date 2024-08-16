@@ -25,7 +25,7 @@ void Deck::PrintDeck() const
 
 void Deck::AddCard(PlayingCard* card)
 {
-	deck.push_back(card);
+	cards.push_back(card);
 }
 
 void Deck::DestroyCard(PlayingCard* card)
@@ -48,7 +48,7 @@ void Deck::RestoreDeck()
 {
 	for (auto& card : usedCards)
 	{
-		deck.push_back(card);
+		cards.push_back(card);
 	}
 }
 
@@ -56,15 +56,15 @@ void Deck::Shuffle()
 {
 	std::random_device rd;
 	std::mt19937 gen(rd());
-	std::uniform_int_distribution<> dist(0, deck.size() - 1);
+	std::uniform_int_distribution<> dist(0, static_cast<int>(cards.size() - 1));
 
 	int dest, sour;
 	PlayingCard* temp;
 
 
-	iter = deck.begin();
+	iter = cards.begin();
 
-	for (int i = 0; i < deck.size() * deck.size(); i++)
+	for (int i = 0; i < cards.size() * cards.size(); i++)
 	{
 		dest = dist(gen);
 		sour = dist(gen);
@@ -90,10 +90,18 @@ void Deck::InitCardMap()
 void Deck::CountCards()
 {
 	cardStockTemp = cardStock;
-	for (auto& card : deck)
+	for (auto& card : cards)
 	{
 		cardStockTemp[card->getCardType()]++;
 	}
+}
+
+PlayingCard* Deck::PopCard()
+{
+	PlayingCard* temp;
+	temp = cards.back();
+	cards.pop_back();
+	return temp;
 }
 
 

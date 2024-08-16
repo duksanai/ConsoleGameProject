@@ -7,8 +7,9 @@ class Hand
 public:
 	void SortNum();
 	void SortShape();
-	void AddCard(std::vector<PlayingCard*> cards);
+	void AddCard(PlayingCard* card);
 	void Discard(std::vector<PlayingCard*> cards);
+	int getHandSize();
 private:
 	std::vector<PlayingCard*> handList;
 	std::vector<PlayingCard*>::iterator iter;

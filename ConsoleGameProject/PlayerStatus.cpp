@@ -81,3 +81,18 @@ void PlayerStatus::InitHandRanking()
 	handRankings.insert(std::make_pair("플러시 하우스", HandRanking(1, 140, 14)));
 	handRankings.insert(std::make_pair("플러시 파이브", HandRanking(1, 200, 16)));
 }
+
+int PlayerStatus::getHand() const
+{
+	return hand;
+}
+
+int PlayerStatus::getHandCount() const
+{
+	return handCount;
+}
+
+int PlayerStatus::getDiscardCount() const
+{
+	return discardCount;
+}

@@ -8,12 +8,9 @@ void Hand::SortShape()
 {
 }
 
-void Hand::AddCard(std::vector<PlayingCard*> cards)
+void Hand::AddCard(PlayingCard* card)
 {
-	for (auto& card : cards)
-	{
-		handList.push_back(card);
-	}
+	handList.push_back(card);
 }
 
 void Hand::Discard(std::vector<PlayingCard*> cards)
@@ -26,4 +23,9 @@ void Hand::Discard(std::vector<PlayingCard*> cards)
 			handList.erase(remove(handList.begin(), handList.end(), *iter));
 		}
 	}
+}
+
+int Hand::getHandSize()
+{
+	return handList.size();
 }

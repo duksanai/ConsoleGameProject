@@ -5,7 +5,9 @@ Deck DeckSelectScene::DeckInit()
 	// new 해서 기본 덱, 일단 카드 덱 생성자로 생성
 	// 덱 추가되면 if문으로 selectDeck 입력값에 따라 덱 다른걸로 할당
 	int chip;
-	std::string shape[4] = { "♠, ◆, ♣, ♥" };
+	out = false;
+	std::string shape[4] = { "♠", "◆", "♣", "♥" };
+	int secondDeckShape[4] = { 0, 0, 3, 3 };
 
 	int key;
 	key = _getch();
@@ -33,7 +35,6 @@ Deck DeckSelectScene::DeckInit()
 		}
 		break;
 	case 50: // 체크무늬 덱
-		int checkShape[4] = { 0, 0, 3, 3 };
 		for (int i = 0; i < 4; i++)
 		{
 			for (int j = 0; j < 13; j++)
@@ -50,9 +51,13 @@ Deck DeckSelectScene::DeckInit()
 				{
 					chip = j + 1;
 				}
-				deck.AddCard(new PlayingCard(shape[checkShape[i]], j + 1, chip));
+				deck.AddCard(new PlayingCard(shape[secondDeckShape[i]], j + 1, chip));
 			}
 		}
+		break;
+	case 51:
+		// 나가기
+		out = true;
 		break;
 	}
 	return deck;
@@ -62,10 +67,14 @@ void DeckSelectScene::SelectDeck()
 {
 	PrintDeckSelect();
 	DeckInit();
+	if (out) return;
 	game.GameInit(deck);
 }
 
 void DeckSelectScene::PrintDeckSelect()const
 {
-	std::cout << "덱 선택\n1. 기본 덱\n2. 체크무늬 덱 - 스페이드와 하트로만 덱이 구성되어 있습니다. " << std::endl;
+	std::cout << "<덱 선택>" << std::endl;
+	std::cout << "1. 기본 덱" << std::endl;
+	std::cout << "2. 체크무늬 덱 - 스페이드와 하트로만 덱이 구성되어 있습니다. " << std::endl;
+	std::cout << "3. 나가기";
 }
