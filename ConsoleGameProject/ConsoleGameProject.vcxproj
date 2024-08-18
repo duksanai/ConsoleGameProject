@@ -132,6 +132,7 @@
     <ClInclude Include="GameScene.h" />
     <ClInclude Include="Hand.h" />
     <ClInclude Include="HandRanking.h" />
+    <ClInclude Include="Joker.h" />
     <ClInclude Include="MainMenuScene.h" />
     <ClInclude Include="PlayerStatus.h" />
     <ClInclude Include="PlayingCard.h" />
@@ -143,6 +144,7 @@
     <ClCompile Include="GameScene.cpp" />
     <ClCompile Include="Hand.cpp" />
     <ClCompile Include="HandRanking.cpp" />
+    <ClCompile Include="Joker.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainMenuScene.cpp" />
     <ClCompile Include="PlayerStatus.cpp" />

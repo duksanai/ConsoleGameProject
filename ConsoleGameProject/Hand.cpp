@@ -13,6 +13,11 @@ void Hand::AddCard(PlayingCard* card)
 	handList.push_back(card);
 }
 
+PlayingCard* Hand::getCard(int index)
+{
+	return iter[index];
+}
+
 void Hand::Discard(std::vector<PlayingCard*> cards)
 {
 	for (auto& card : cards)
@@ -28,4 +33,16 @@ void Hand::Discard(std::vector<PlayingCard*> cards)
 int Hand::getHandSize()
 {
 	return handList.size();
+}
+
+bool Hand::FindCard(PlayingCard* card)
+{
+	if (find(handList.begin(), handList.end(), card) == handList.end())
+	{
+		return false;
+	}
+	else
+	{
+		return true;
+	}
 }

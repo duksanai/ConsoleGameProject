@@ -1,5 +1,10 @@
 #include "PlayerStatus.h"
 
+PlayerStatus::PlayerStatus()
+{
+	InitHandRanking();
+}
+
 PlayerStatus::PlayerStatus(int handCount, int discardCount, int hand)
 	:handCount(handCount), discardCount(discardCount), hand(hand)
 {

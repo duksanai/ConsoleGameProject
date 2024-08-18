@@ -13,12 +13,14 @@ class PlayingCard
 {
 public:
 	PlayingCard(const std::string& shape, const int number, const int chip);
+	bool operator<(const PlayingCard& other)const;
 	CardType getCardType();
 
 private:
 	std::string shape;
 	int number;
 	int chip;
+	bool isSelected;
 	// std::string upgradeType;
 };
 

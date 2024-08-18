@@ -3,6 +3,16 @@
 PlayingCard::PlayingCard(const std::string& shape, const int number, const int chip)
 	:shape(shape), number(number), chip(chip)
 {
+	isSelected = false;
+}
+
+bool PlayingCard::operator<(const PlayingCard& other) const
+{
+	if (shape == other.shape)
+	{
+		return number < other.number;
+	}
+	return shape < other.shape;
 }
 
 CardType PlayingCard::getCardType()

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <conio.h>
+#include <algorithm>
 
 #include "Deck.h"
 #include "PlayerStatus.h"
@@ -23,11 +24,15 @@ private:
 	void SkipBlind();
 	void MakeAntie();
 	void PickCards();
+	void Trigger();
+	void CheckRanking();
 
 	PlayerStatus* status;
+	std::vector<std::string> ranking;
 	StageInfo* stageInfo[3];
 	Deck deck;
 	Hand hand;
+	std::vector<Joker> jokers;
 	std::vector<PlayingCard*> selectedCard;
 	int deadLine[9];
 	int currentBlind;

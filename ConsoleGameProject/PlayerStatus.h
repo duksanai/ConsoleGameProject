@@ -6,6 +6,7 @@
 class PlayerStatus
 {
 public:
+	PlayerStatus();
 	PlayerStatus(int handCount, int discardCount, int hand);
 public:
 	void PrintHandRanking()const;
