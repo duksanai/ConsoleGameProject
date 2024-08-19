@@ -8,12 +8,13 @@ class Hand
 public:
 	Hand() { iter = handList.begin(); }
 public:
+	void PrintHand()const;
 	void SortNum();
 	void SortShape();
 	void AddCard(PlayingCard* card);
-	PlayingCard* getCard(int index);
+	PlayingCard* getCard(int index)const;
 	void Discard(std::vector<PlayingCard*> cards);
-	int getHandSize();
+	int getHandSize()const;
 	bool FindCard(PlayingCard* card);
 private:
 	std::vector<PlayingCard*> handList;

@@ -4,7 +4,7 @@
 void GameScene::GameInit(Deck deck)
 {
 	this->deck = deck;
-
+	handList = new Hand();
 	status = new PlayerStatus(4, 4, 8);
 
 	deadLine[0] = 100;
@@ -21,8 +21,50 @@ void GameScene::GameInit(Deck deck)
 	round = 1;
 	antie = 1;
 	score = 0;
+	
+
+	// 조커 테스트용
+	InitJoker();
+	
 
 	GameStart();
+}
+
+void GameScene::InitJoker()
+{
+#pragma region 조커 생성
+	// 임시로 조커 3개 넣기
+	// 1. 조커 - 트리거 완료 후 - +4의 배수를 획득
+	// 2. 인색한 조커 - 트리거 시 - 다이아몬드 문양 카드를 플레이할 때마다 +3의 배수 획득
+	// 3. 교활한 조커 - 트리거 완료 후 - 플레이한 핸드에 페어 포함 시 +50개의 칩을 획득
+
+	int* pMul = &multiple;
+	int* pChip = &chip;
+	std::vector<std::string>::iterator findPair = find(ranking.begin(), ranking.end(), "페어");
+	std::vector<std::string>::iterator rankingEnd = ranking.end();
+
+	PushJoker("조커", "+4의 배수를 획득", "afterTrigger", [pMul](PlayingCard* card)
+		{
+			*pMul += 4;
+		});
+
+	PushJoker("인색한 조커", "다이아몬드 문양 카드를 플레이할 때마다 +3의 배수 획득", "atTrigger", [pMul](PlayingCard* card)
+		{
+			if (card->getShape() == "◆")
+			{
+				*pMul += 3;
+			}
+
+		});
+
+	PushJoker("교활한 조커", "플레이한 핸드에 페어 포함 시 +50개의 칩을 획득", "afterTrigger", [findPair, rankingEnd, pChip](PlayingCard* card)
+		{
+			if (findPair != rankingEnd)
+			{
+				*pChip += 50;
+			}
+		});
+#pragma endregion
 }
 
 void GameScene::GameStart()
@@ -67,7 +109,6 @@ void GameScene::GameStart()
 			}
 		}
 		
-
 		if (currentBlind > 2)
 		{
 			currentBlind = 0;
@@ -85,24 +126,27 @@ void GameScene::GameStart()
 
 void GameScene::StartBlind()
 {
+	int hand;
 	int handCount;
 	int discardCount;
 	while (true)
 	{
 		deck.Shuffle();
 
+		hand = status->getHand();
 		handCount = status->getHandCount();
 		discardCount = status->getDiscardCount();
 
 		// 패에 카드 추가
-		for (int i = 0; i < handCount; i++)
+		for (int i = 0; i < hand; i++)
 		{
-			hand.AddCard(deck.PopCard());
+			handList->AddCard(deck.PopCard());
 		}
 
 		// 제출 카운트 만큼 혹은 데드라인을 넘길 때 까지 카드를 선택하고 제출하는 부분
 		while (true)
 		{
+			system("cls");
 			PrintGame();
 			PickCards();
 		}
@@ -121,6 +165,30 @@ void GameScene::PrintGame() const
 {
 	cout << "<" << stageInfo[currentBlind]->getBlind() << ">" << endl;
 	cout << "목표 점수: " << stageInfo[currentBlind]->getScoreDeadLine() << endl;
+	cout << "칩 X 배수\t" << chip << " X " << multiple << " = " << chip * multiple << endl;
+	cout << "보유한 조커" << endl;
+	for (auto joker : myJokers)
+	{
+		cout << joker->getName() << "\t" << joker->getToolTip() << endl;
+	}
+	cout << endl;
+	if (!selectedCard.empty())
+	{
+		cout << ranking[0];
+	}
+	cout << endl;
+	cout << "선택된 카드" << endl;
+	for (auto card : selectedCard)
+	{
+		card->PrintCard();
+		cout << "\t";
+	}
+	cout << endl;
+	handList->PrintHand();
+	cout << endl;
+
+	cout << "커서 이동: ←, →" << endl;
+	cout << "z - 선택, x - 그림 정렬, c - 숫자 정렬" << endl;
 }
 
 void GameScene::MakeAntie()
@@ -138,6 +206,7 @@ void GameScene::PickCards()
 	iter = selectedCard.begin();
 	while (true)
 	{
+		cout << "커서: " << index + 1 << "번 카드" << endl;
 		key = _getch();
 		if (key == 224)
 		{
@@ -154,7 +223,7 @@ void GameScene::PickCards()
 				break;
 			//오른쪽
 			case 77:
-				if (index < hand.getHandSize())
+				if (index < handList->getHandSize())
 				{
 					index++;
 				}
@@ -166,31 +235,50 @@ void GameScene::PickCards()
 			// 엔터키 - 제출 버튼
 			if (key == 13)
 			{
-				Trigger();
-
-				return;
+				if (!selectedCard.empty())
+				{
+					// 카드 하나씩 트리거
+					PlayingCard* nullCard = nullptr;
+					Trigger();
+					// 모든 카드 트리거 후 조커 트리거 넣기
+					for (auto& joker : myJokers)
+					{
+						joker->AfterTrigger(nullCard);
+					}
+					delete nullCard;
+					return;
+				}
 			}
 			// 선택 버튼 - z
 			else if (key == 90 || key == 122)
 			{
-				// 만약 선택된 카드가 5장보다 적으면 
-				if (selectedCard.size() < 5)
+				// 이미 선택한 카드 선택 취소
+				if (FindCard(handList->getCard(index)))
 				{
-					// 이미 선택한 카드 선택 취소
-					if (hand.FindCard(hand.getCard(index)))
-					{
-						selectedCard.erase(remove(selectedCard.begin(), selectedCard.end(), iter[index]), selectedCard.end());
-					}
-					// 카드 선택
-					else
-					{
-						selectedCard.push_back(hand.getCard(index));
-					}
+					selectedCard.erase(remove(selectedCard.begin(), selectedCard.end(), handList->getCard(index)), selectedCard.end());
+				}
+				// 카드 선택, 선택 카드가 5장보다 적을 때만
+				else if (selectedCard.size() < 5)
+				{
+					selectedCard.push_back(handList->getCard(index));
 				}
 				// 족보 검사 함수
 				CheckRanking();
 			}
+
+			// 그림 정렬 - x
+			else if (key == 88 || key == 120)
+			{
+				handList->SortShape();
+			}
+
+			// 숫자 정렬 - c
+			else if (key == 67 || key == 99)
+			{
+				handList->SortNum();
+			}
 		}
+		system("cls");
 		PrintGame();
 	}
 }
@@ -199,14 +287,19 @@ void GameScene::Trigger()
 {
 	// 화면 갱신
 	PrintGame();
+	// 최상위 족보 가져오기
+	chip = status->getHandRanking(ranking[0]).getChip();
+	multiple = status->getHandRanking(ranking[0]).getMultiple();
 	// 트리거 하기
 	for (auto& card : selectedCard)
 	{
 		// 족보에 카드 칩 더하기
-
-
+		chip += card->getChip();
 		// 조커 카드 검사 -> 조커 능력 트리거
-
+		for (auto& joker : myJokers)
+		{
+			joker->AtTrigger(card);
+		}
 	}
 }
 
@@ -225,6 +318,66 @@ void GameScene::CheckRanking()
 
 	std::map<int, int> numberCount;
 	std::map<std::string, int> shapeCount;
+	int cardCount = sortedCards.size();
+
+	for (auto& card : sortedCards) {
+		numberCount[card->getCardType().number]++;
+		shapeCount[card->getCardType().shape]++;
+	}
+
+	bool isFourCard = false, isStraight = true, isFlush = false, isTriple = false, isPair = false;
+
+	// 포 카드 체크만
+	for (auto& pair : numberCount)
+	{
+		if (pair.second == 4)
+		{
+			isFourCard = true;
+		}
+	}
+
+	// 스트레이트 체크만
+	if (cardCount == 5)
+	{
+		for (int i = 0; i < sortedCards.size() - 1; i++)
+		{
+			if (sortedCards[i]->getCardType().number + 1 != sortedCards[i + 1]->getCardType().number)
+			{
+				isStraight = false;
+			}
+		}
+	}
+	else
+	{
+		isStraight = false;
+	}
+
+	// 플러시 체크만
+	if (shapeCount.size() == 1 && cardCount == 5)
+	{
+		isFlush = true;
+	}
+
+	// 트리플 체크만
+
+	for (auto& pair : numberCount)
+	{
+		if (pair.second == 3)
+		{
+			isTriple = true;
+		}
+	}
+
+	// 페어 체크만
+	int countPair = 0;
+	for (auto& pair : numberCount)
+	{
+		if (pair.second == 2)
+		{
+			isPair = true;
+			countPair++;
+		}
+	}
 
 	// if문으로 제일 우선순위가 높은 족보부터 순서대로 넣음
 	/*
@@ -242,9 +395,95 @@ void GameScene::CheckRanking()
 	플러시 하우스 :		풀하우스와 플러시를 동시에 만족. 140*14
 	플러시 파이브 :		동일 문양과 랭크로 된 파이브 카드. 200*16
 	*/
+
 	// 플러시 파이브
-	// 너무 안떠올라서 다음 것 부터..
-	
+	if ((numberCount.size() == 1 && shapeCount.size() == 1) && cardCount == 5)
+	{
+		ranking.push_back("플러시 파이브");
+	}
+
+	// 플러시 하우스
+	if ((cardCount == 5 && shapeCount.size() == 1) && (isTriple && isPair))
+	{
+		ranking.push_back("플러시 하우스");
+	}
+
+	// 파이브 카드
+	if (cardCount == 5 && numberCount.size() == 1)
+	{
+		ranking.push_back("파이브 카드");
+	}
+
+	// 스트레이트 플러시
+	if (isStraight && (shapeCount.size() == 1))
+	{
+		ranking.push_back("스트레이트 플러시");
+	}
+
+	// 포 카드
+	if (isFourCard)
+	{
+		ranking.push_back("포 카드");
+	}
+
+	// 풀하우스
+	if (isTriple && isPair)
+	{
+		ranking.push_back("풀하우스");
+	}
+
+	// 플러시
+	if (isFlush)
+	{
+		ranking.push_back("플러시");
+	}
+
+	// 스트레이트
+	if (isStraight)
+	{
+		ranking.push_back("스트레이트");
+	}
+
+	// 트리플
+	if (isTriple)
+	{
+		ranking.push_back("트리플");
+	}
+
+	// 투 페어
+	if (countPair == 2)
+	{
+		ranking.push_back("투 페어");
+	}
+
+	// 원 페어
+	if (isPair)
+	{
+		ranking.push_back("원 페어");
+	}
+
+	if (sortedCards.size() > 0)
+	{
+		ranking.push_back("하이");
+	}
+}
+
+void GameScene::PushJoker(const std::string& name, const std::string& toolTip, const std::string& abilityType, std::function<void(PlayingCard* card)> function)
+{
+	Joker* joker = new Joker(name, toolTip);
+	if (abilityType == "passive")
+	{
+		joker->PassiveAbility = function;
+	}
+	else if (abilityType == "atTrigger")
+	{
+		joker->AtTrigger = function;
+	}
+	else if (abilityType == "afterTrigger")
+	{
+		joker->AfterTrigger = function;
+	}
+	myJokers.push_back(joker);
 }
 
 void GameScene::PrintResult() const
@@ -255,3 +494,14 @@ void GameScene::SkipBlind()
 {
 }
 
+bool GameScene::FindCard(PlayingCard* card)
+{
+	if (find(selectedCard.begin(), selectedCard.end(), card) == selectedCard.end())
+	{
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}

@@ -24,6 +24,11 @@ void PlayerStatus::PrintHandRanking() const
 	}
 }
 
+HandRanking PlayerStatus::getHandRanking(const std::string& rank) const
+{
+	return handRankings.find(rank)->second;
+}
+
 void PlayerStatus::HandLevelUp(const std::string& name, const int chip, const int multiple)
 {
 	handRankings[name].LevelUp(1, chip, multiple);
@@ -74,7 +79,7 @@ void PlayerStatus::HandPlus(const int num)
 void PlayerStatus::InitHandRanking()
 {
 	handRankings.insert(std::make_pair("하이", HandRanking(1, 5, 1)));
-	handRankings.insert(std::make_pair("페어", HandRanking(1, 10, 2)));
+	handRankings.insert(std::make_pair("원 페어", HandRanking(1, 10, 2)));
 	handRankings.insert(std::make_pair("투 페어", HandRanking(1, 20, 2)));
 	handRankings.insert(std::make_pair("트리플", HandRanking(1, 30, 3)));
 	handRankings.insert(std::make_pair("스트레이트", HandRanking(1, 30, 4)));

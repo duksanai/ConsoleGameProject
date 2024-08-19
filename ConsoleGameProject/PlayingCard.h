@@ -15,6 +15,9 @@ public:
 	PlayingCard(const std::string& shape, const int number, const int chip);
 	bool operator<(const PlayingCard& other)const;
 	CardType getCardType();
+	void PrintCard();
+	std::string getShape();
+	int getChip();
 
 private:
 	std::string shape;

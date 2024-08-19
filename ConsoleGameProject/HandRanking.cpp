@@ -1,7 +1,7 @@
 #include "HandRanking.h"
 
-HandRanking::HandRanking(const int chip, const int multiple, const int level)
-	:chip(chip), multiple(multiple), level(level)
+HandRanking::HandRanking(const int level, const int chip, const int multiple)
+	:level(level), chip(chip), multiple(multiple)
 {
 }
 

@@ -10,6 +10,7 @@ public:
 	PlayerStatus(int handCount, int discardCount, int hand);
 public:
 	void PrintHandRanking()const;
+	HandRanking getHandRanking(const std::string& rank)const;
 	void HandLevelUp(const std::string& name, const int chip, const int multiple);
 	void HandLevelDown(const std::string& name, const int chip, const int multiple);
 	void HandCountPlus(const int num);

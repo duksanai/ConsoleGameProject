@@ -3,7 +3,7 @@ class HandRanking
 {
 public:
 	HandRanking() { chip = 0; multiple = 0; level = 0; }
-	HandRanking(const int chip, const int multiple, const int level);
+	HandRanking(const int level, const int chip, const int multiple);
 public:
 	void LevelUp(int level, int chip, int multiple);
 	void LevelDown(int level, int chip, int multiple);
