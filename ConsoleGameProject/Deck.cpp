@@ -4,6 +4,7 @@
 // 
 void Deck::PrintDeck() const
 {
+	system("cls");
 	std::string shape[4] = { "¢¼", "¡ß", "¢¾", "¢À" };
 	int i = 0;
 	std::cout << "\tA\t2\t3\t4\t5\t6\t7\t8\t9\t10\tJ\tQ\tK" << std::endl;
@@ -20,7 +21,13 @@ void Deck::PrintDeck() const
 			std::cout << std::endl;
 		}
 	}
-
+	std::cout << "³ª°¡±â - x";
+	int key;
+	key = _getch();
+	if (key == 88 || key == 120)
+	{
+		return;
+	}
 }
 
 void Deck::AddCard(PlayingCard* card)
@@ -50,6 +57,7 @@ void Deck::RestoreDeck()
 	{
 		cards.push_back(card);
 	}
+	std::vector<PlayingCard*>().swap(usedCards);
 }
 
 void Deck::Shuffle()

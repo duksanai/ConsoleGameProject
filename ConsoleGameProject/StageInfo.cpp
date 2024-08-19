@@ -32,3 +32,8 @@ int StageInfo::getScoreDeadLine() const
 {
 	return scoreDeadLine;
 }
+
+void StageInfo::setClear(bool result)
+{
+	isClear = result;
+}

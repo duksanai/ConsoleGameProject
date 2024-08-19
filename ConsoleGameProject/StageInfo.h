@@ -10,6 +10,7 @@ public:
 	int getAntie()const;
 	std::string getBlind()const;
 	int getScoreDeadLine()const;
+	void setClear(bool result);
 private:
 	std::string blind;
 	int antie;

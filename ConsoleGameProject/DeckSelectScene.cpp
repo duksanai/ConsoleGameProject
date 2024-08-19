@@ -2,6 +2,8 @@
 
 Deck DeckSelectScene::DeckInit()
 {
+	deck.InitCardMap();
+
 	// new 해서 기본 덱, 일단 카드 덱 생성자로 생성
 	// 덱 추가되면 if문으로 selectDeck 입력값에 따라 덱 다른걸로 할당
 	int chip;

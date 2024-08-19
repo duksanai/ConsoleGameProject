@@ -2,6 +2,7 @@
 
 #include <conio.h>
 #include <algorithm>
+#include <Windows.h>
 
 #include "Deck.h"
 #include "PlayerStatus.h"
@@ -21,7 +22,7 @@ public:
 private:
 	void InitJoker();
 	void GameStart();
-	void StartBlind();
+	void StartBlind(const int currentBlind);
 	void PrintGame()const;
 	void PrintResult()const;
 	void SkipBlind();
@@ -32,6 +33,8 @@ private:
 	void PushJoker(const std::string& name, const std::string& toolTip, const std::string& abilityType, std::function<void(PlayingCard* card)> function);
 	bool FindCard(PlayingCard* card);
 
+	void RefreshScreen(int sleep);
+
 	PlayerStatus* status;
 	std::vector<std::string> ranking;
 	StageInfo* stageInfo[3];
@@ -39,6 +42,7 @@ private:
 	Hand* handList;
 	std::vector<Joker*> myJokers;
 	std::vector<PlayingCard*> selectedCard;
+	std::vector<PlayingCard*> scoringCards;
 	int deadLine[9];
 	int currentBlind;
 	int round;
@@ -46,5 +50,9 @@ private:
 	int chip;
 	int multiple;
 	int score;
+	int hand;
+	int handCount;
+	int discardCount;
+	bool isEnter;
 };
 

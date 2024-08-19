@@ -21,6 +21,7 @@ void GameScene::GameInit(Deck deck)
 	round = 1;
 	antie = 1;
 	score = 0;
+	isEnter = false;
 	
 
 	// 조커 테스트용
@@ -46,6 +47,7 @@ void GameScene::InitJoker()
 	PushJoker("조커", "+4의 배수를 획득", "afterTrigger", [pMul](PlayingCard* card)
 		{
 			*pMul += 4;
+			Sleep(500);
 		});
 
 	PushJoker("인색한 조커", "다이아몬드 문양 카드를 플레이할 때마다 +3의 배수 획득", "atTrigger", [pMul](PlayingCard* card)
@@ -53,6 +55,7 @@ void GameScene::InitJoker()
 			if (card->getShape() == "◆")
 			{
 				*pMul += 3;
+				Sleep(500);
 			}
 
 		});
@@ -62,6 +65,7 @@ void GameScene::InitJoker()
 			if (findPair != rankingEnd)
 			{
 				*pChip += 50;
+				Sleep(500);
 			}
 		});
 #pragma endregion
@@ -69,10 +73,10 @@ void GameScene::InitJoker()
 
 void GameScene::GameStart()
 {
+	MakeAntie();
 	while (true)
 	{
 		system("cls");
-		MakeAntie();
 
 		// 앤티 정보 출력
 		cout << "<<앤티: " << antie << ">>" << endl << endl;
@@ -81,7 +85,8 @@ void GameScene::GameStart()
 		{
 			stageInfo[i]->PrintStageInfo();
 		}
-
+		cout << "현재 블라인드: " << stageInfo[currentBlind]->getBlind() << endl;
+		cout << endl;
 		// 블라인드 시작, 건너뛰기 선택
 		int key;
 		bool out = false;
@@ -95,7 +100,7 @@ void GameScene::GameStart()
 			{
 			case 49:
 				// 시작
-				StartBlind();
+				StartBlind(currentBlind);
 				out = true;
 				break;
 			case 50:
@@ -109,53 +114,63 @@ void GameScene::GameStart()
 			}
 		}
 		
-		if (currentBlind > 2)
+		if (currentBlind >= 2)
 		{
 			currentBlind = 0;
 			antie++;
+			MakeAntie();
+		}
+		else
+		{
+			currentBlind++;
 		}
 
 		if (antie > 8)
 		{
-			system("cls");
 			PrintResult();
 			break;
 		}
 	}
 }
 
-void GameScene::StartBlind()
+void GameScene::StartBlind(const int currentBlind)
 {
-	int hand;
-	int handCount;
-	int discardCount;
+
+	std::vector<PlayingCard*>().swap(selectedCard);
+	std::vector<std::string>().swap(ranking);
+	score = 0;
+	chip = 0;
+	multiple = 0;
+	deck.Shuffle();
+
+	hand = status->getHand();
+	handCount = status->getHandCount();
+	discardCount = status->getDiscardCount();
+
+	// 제출 카운트 만큼 혹은 데드라인을 넘길 때 까지 카드를 선택하고 제출하는 부분
 	while (true)
 	{
-		deck.Shuffle();
-
-		hand = status->getHand();
-		handCount = status->getHandCount();
-		discardCount = status->getDiscardCount();
-
 		// 패에 카드 추가
-		for (int i = 0; i < hand; i++)
+		for (int i = handList->getHandSize(); i < hand; i++)
 		{
 			handList->AddCard(deck.PopCard());
 		}
 
-		// 제출 카운트 만큼 혹은 데드라인을 넘길 때 까지 카드를 선택하고 제출하는 부분
-		while (true)
+		RefreshScreen(500);
+		PickCards();
+		// 점수 넘겼으면
+		if (score >= stageInfo[currentBlind]->getScoreDeadLine())
 		{
-			system("cls");
-			PrintGame();
-			PickCards();
+			cout << "블라인드 클리어!" << endl;
+			stageInfo[currentBlind]->setClear(true);
+			deck.RestoreDeck();
+			Sleep(1000);
+			break;
 		}
-
-
-
-
-		if (handCount < 0)
+		// 제출 횟수 전부 소모
+		else if (handCount == 0)
 		{
+			PrintResult();
 			break;
 		}
 	}
@@ -165,11 +180,24 @@ void GameScene::PrintGame() const
 {
 	cout << "<" << stageInfo[currentBlind]->getBlind() << ">" << endl;
 	cout << "목표 점수: " << stageInfo[currentBlind]->getScoreDeadLine() << endl;
-	cout << "칩 X 배수\t" << chip << " X " << multiple << " = " << chip * multiple << endl;
-	cout << "보유한 조커" << endl;
+	cout << "칩 X 배수: ";
+	if (isEnter)
+	{
+		cout << status->getHandRanking(ranking[0]).getChip() + chip << " X " << status->getHandRanking(ranking[0]).getMultiple() + multiple;
+	}
+	else if (ranking.size() != 0)
+	{
+		cout << status->getHandRanking(ranking[0]).getChip() << " X " << status->getHandRanking(ranking[0]).getMultiple();
+	}
+	cout << endl;
+	cout << "<스코어>" << endl;
+	cout << score << endl;
+
+	cout << endl;
+	cout << "<보유한 조커>" << endl;
 	for (auto joker : myJokers)
 	{
-		cout << joker->getName() << "\t" << joker->getToolTip() << endl;
+		cout << joker->getName() << ": " << joker->getToolTip() << endl;
 	}
 	cout << endl;
 	if (!selectedCard.empty())
@@ -184,11 +212,16 @@ void GameScene::PrintGame() const
 		cout << "\t";
 	}
 	cout << endl;
+
 	handList->PrintHand();
+
+	cout << endl;
+	cout << "핸드: " << handCount << "\t버리기: " << discardCount << endl;
 	cout << endl;
 
 	cout << "커서 이동: ←, →" << endl;
-	cout << "z - 선택, x - 그림 정렬, c - 숫자 정렬" << endl;
+	cout << "z - 선택, x - 버리기, c - 그림 정렬, v - 숫자 정렬, d - 덱 조회" << endl;
+	cout << endl;
 }
 
 void GameScene::MakeAntie()
@@ -217,13 +250,12 @@ void GameScene::PickCards()
 			case 75:
 				if (index > 0)
 				{
-					// 실행
 					index--;
 				}
 				break;
 			//오른쪽
 			case 77:
-				if (index < handList->getHandSize())
+				if (index < handList->getHandSize() - 1)
 				{
 					index++;
 				}
@@ -237,15 +269,16 @@ void GameScene::PickCards()
 			{
 				if (!selectedCard.empty())
 				{
-					// 카드 하나씩 트리거
-					PlayingCard* nullCard = nullptr;
+					// 카드, 조커 트리거
+					isEnter = true;
 					Trigger();
-					// 모든 카드 트리거 후 조커 트리거 넣기
-					for (auto& joker : myJokers)
-					{
-						joker->AfterTrigger(nullCard);
-					}
-					delete nullCard;
+					handCount--;
+					isEnter = false;
+					// 선택한 카드들을 묘지에 추가
+					deck.UsedCards(selectedCard);
+					// 패에서 선택한 카드 제거
+					handList->Discard(selectedCard);
+					std::vector<PlayingCard*>().swap(selectedCard);
 					return;
 				}
 			}
@@ -266,16 +299,38 @@ void GameScene::PickCards()
 				CheckRanking();
 			}
 
-			// 그림 정렬 - x
+			// 버리기 - x
 			else if (key == 88 || key == 120)
+			{
+				if (discardCount > 0)
+				{
+					// 선택한 카드들을 묘지에 추가
+					deck.UsedCards(selectedCard);
+					// 패에서 선택한 카드 제거
+					handList->Discard(selectedCard);
+					std::vector<PlayingCard*>().swap(selectedCard);
+					discardCount--;
+					return;
+				}
+			}
+
+			// 그림 정렬 - c
+			else if (key == 67 || key == 99)
 			{
 				handList->SortShape();
 			}
 
-			// 숫자 정렬 - c
-			else if (key == 67 || key == 99)
+			// 숫자 정렬 - v
+			else if (key == 86 || key == 118)
 			{
 				handList->SortNum();
+			}
+
+			// 덱 조회 - d
+			else if (key == 68 || key == 100)
+			{
+				deck.CountCards();
+				deck.PrintDeck();
 			}
 		}
 		system("cls");
@@ -286,6 +341,7 @@ void GameScene::PickCards()
 void GameScene::Trigger()
 {
 	// 화면 갱신
+	system("cls");
 	PrintGame();
 	// 최상위 족보 가져오기
 	chip = status->getHandRanking(ranking[0]).getChip();
@@ -295,12 +351,26 @@ void GameScene::Trigger()
 	{
 		// 족보에 카드 칩 더하기
 		chip += card->getChip();
-		// 조커 카드 검사 -> 조커 능력 트리거
+
+		RefreshScreen(500);
+
+		// 트리거할 때 조커 어빌리티
 		for (auto& joker : myJokers)
 		{
 			joker->AtTrigger(card);
+			RefreshScreen(0);
 		}
 	}
+
+	// 트리거 후 조커 어빌리티
+	for (auto& joker : myJokers)
+	{
+		joker->AfterTrigger(nullptr);
+		RefreshScreen(500);
+	}
+
+	score += chip * multiple;
+	RefreshScreen(500);
 }
 
 // 족보를 체크하는 함수
@@ -504,4 +574,11 @@ bool GameScene::FindCard(PlayingCard* card)
 	{
 		return true;
 	}
+}
+
+void GameScene::RefreshScreen(int sleep)
+{
+	system("cls");
+	PrintGame();
+	Sleep(sleep);
 }
