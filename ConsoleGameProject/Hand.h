@@ -8,7 +8,7 @@ class Hand
 public:
 	Hand() { iter = handList.begin(); }
 public:
-	void PrintHand()const;
+	void PrintHand(int x, int y)const;
 	void SortNum();
 	void SortShape();
 	void AddCard(PlayingCard* card);

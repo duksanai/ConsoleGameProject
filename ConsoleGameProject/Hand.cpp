@@ -1,16 +1,16 @@
 #include "Hand.h"
 
-void Hand::PrintHand()const
+void Hand::PrintHand(int x, int y)const
 {
 	for (auto card : handList)
 	{
-		card->PrintCard();
+		card->PrintCard(x, y);
 		std::cout << "\t";
+		x += 18;
 	}
 	std::cout << std::endl;
 }
 
-// 좀 있다 하자..
 // 숫자 순서대로 정렬
 void Hand::SortNum()
 {
@@ -18,15 +18,20 @@ void Hand::SortNum()
 	// 그 다음, 같은 그림끼리 정렬?
 	// 같은 그림부터 정렬 후 숫자로 정렬? -> 이게 맞다
 
-	// 같은 그림끼리 모으기
-
+	std::sort(handList.begin(), handList.end(), [](const PlayingCard* a, const PlayingCard* b)
+		{
+			return *a > *b;
+		});
 }
 
 // 그림 순서대로 정렬
 void Hand::SortShape()
 {
 	// 숫자로 먼저 정렬한 후 그림 순서로 정렬해야함. 
-	
+	std::sort(handList.begin(), handList.end(), [](const PlayingCard* a, const PlayingCard* b)
+		{
+			return *a < *b;
+		});
 }
 
 void Hand::AddCard(PlayingCard* card)

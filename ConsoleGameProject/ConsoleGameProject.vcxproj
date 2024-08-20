@@ -137,6 +137,7 @@
     <ClInclude Include="PlayerStatus.h" />
     <ClInclude Include="PlayingCard.h" />
     <ClInclude Include="StageInfo.h" />
+    <ClInclude Include="Util.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Deck.cpp" />
@@ -150,6 +151,7 @@
     <ClCompile Include="PlayerStatus.cpp" />
     <ClCompile Include="PlayingCard.cpp" />
     <ClCompile Include="StageInfo.cpp" />
+    <ClCompile Include="Util.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

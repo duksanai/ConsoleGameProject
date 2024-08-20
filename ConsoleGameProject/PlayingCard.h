@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include "Util.h"
 
 struct CardType
 {
@@ -12,10 +13,11 @@ struct CardType
 class PlayingCard
 {
 public:
-	PlayingCard(const std::string& shape, const int number, const int chip);
+	PlayingCard(const std::string& shape, const int number, const int chip, const int uniqueNum);
 	bool operator<(const PlayingCard& other)const;
+	bool operator>(const PlayingCard& other)const;
 	CardType getCardType();
-	void PrintCard();
+	void PrintCard(const int x, const int y)const;
 	std::string getShape();
 	int getChip();
 
@@ -23,6 +25,7 @@ private:
 	std::string shape;
 	int number;
 	int chip;
+	int uniqueNum;
 	bool isSelected;
 	// std::string upgradeType;
 };

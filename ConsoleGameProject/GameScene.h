@@ -42,7 +42,7 @@ private:
 	Hand* handList;
 	std::vector<Joker*> myJokers;
 	std::vector<PlayingCard*> selectedCard;
-	std::vector<PlayingCard*> scoringCards;
+	std::vector<PlayingCard*> bestHand;
 	int deadLine[9];
 	int currentBlind;
 	int round;
@@ -53,6 +53,7 @@ private:
 	int hand;
 	int handCount;
 	int discardCount;
+	int cursorIndex;
 	bool isEnter;
 };
 

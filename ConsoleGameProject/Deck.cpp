@@ -112,4 +112,9 @@ PlayingCard* Deck::PopCard()
 	return temp;
 }
 
+void Deck::setLastNum(int num)
+{
+	lastNum = num;
+}
+
 

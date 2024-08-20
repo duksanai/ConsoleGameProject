@@ -21,6 +21,7 @@ public:
 	void InitCardMap();
 	void CountCards();
 	PlayingCard* PopCard();
+	void setLastNum(int num);
 
 private:
 	std::vector<PlayingCard*> cards;
@@ -29,5 +30,6 @@ private:
 	std::map<CardType, int> cardStock;
 	std::map<CardType, int> cardStockTemp;
 	std::string deckName;
+	int lastNum;
 };
 

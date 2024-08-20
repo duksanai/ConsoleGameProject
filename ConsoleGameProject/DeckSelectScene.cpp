@@ -7,6 +7,7 @@ Deck DeckSelectScene::DeckInit()
 	// new 해서 기본 덱, 일단 카드 덱 생성자로 생성
 	// 덱 추가되면 if문으로 selectDeck 입력값에 따라 덱 다른걸로 할당
 	int chip;
+	int count = 0;
 	out = false;
 	std::string shape[4] = { "♠", "◆", "♣", "♥" };
 	int secondDeckShape[4] = { 0, 0, 3, 3 };
@@ -32,7 +33,8 @@ Deck DeckSelectScene::DeckInit()
 				{
 					chip = j + 1;
 				}
-				deck.AddCard(new PlayingCard(shape[i], j + 1, chip));
+				deck.AddCard(new PlayingCard(shape[i], j + 1, chip, j + (i * 13)));
+				count++;
 			}
 		}
 		break;
@@ -53,7 +55,8 @@ Deck DeckSelectScene::DeckInit()
 				{
 					chip = j + 1;
 				}
-				deck.AddCard(new PlayingCard(shape[secondDeckShape[i]], j + 1, chip));
+				deck.AddCard(new PlayingCard(shape[secondDeckShape[i]], j + 1, chip, j + (i * 13)));
+				count++;
 			}
 		}
 		break;
@@ -62,6 +65,7 @@ Deck DeckSelectScene::DeckInit()
 		out = true;
 		break;
 	}
+	deck.setLastNum(count);
 	return deck;
 }
 

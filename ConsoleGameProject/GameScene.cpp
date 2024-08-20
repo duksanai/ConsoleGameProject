@@ -41,8 +41,6 @@ void GameScene::InitJoker()
 
 	int* pMul = &multiple;
 	int* pChip = &chip;
-	std::vector<std::string>::iterator findPair = find(ranking.begin(), ranking.end(), "페어");
-	std::vector<std::string>::iterator rankingEnd = ranking.end();
 
 	PushJoker("조커", "+4의 배수를 획득", "afterTrigger", [pMul](PlayingCard* card)
 		{
@@ -60,9 +58,14 @@ void GameScene::InitJoker()
 
 		});
 
-	PushJoker("교활한 조커", "플레이한 핸드에 페어 포함 시 +50개의 칩을 획득", "afterTrigger", [findPair, rankingEnd, pChip](PlayingCard* card)
+	PushJoker("교활한 조커", "플레이한 핸드에 페어 포함 시 +50개의 칩을 획득", "afterTrigger", [=](PlayingCard* card)
 		{
-			if (findPair != rankingEnd)
+			std::vector<std::string>::iterator findPair = find(ranking.begin(), ranking.end(), "원 페어");
+			if (findPair == ranking.end())
+			{
+				
+			}
+			else
 			{
 				*pChip += 50;
 				Sleep(500);
@@ -135,12 +138,7 @@ void GameScene::GameStart()
 
 void GameScene::StartBlind(const int currentBlind)
 {
-
-	std::vector<PlayingCard*>().swap(selectedCard);
-	std::vector<std::string>().swap(ranking);
 	score = 0;
-	chip = 0;
-	multiple = 0;
 	deck.Shuffle();
 
 	hand = status->getHand();
@@ -155,6 +153,12 @@ void GameScene::StartBlind(const int currentBlind)
 		{
 			handList->AddCard(deck.PopCard());
 		}
+
+		std::vector<PlayingCard*>().swap(selectedCard);
+		std::vector<std::string>().swap(ranking);
+
+		chip = 0;
+		multiple = 0;
 
 		RefreshScreen(500);
 		PickCards();
@@ -183,11 +187,11 @@ void GameScene::PrintGame() const
 	cout << "칩 X 배수: ";
 	if (isEnter)
 	{
-		cout << status->getHandRanking(ranking[0]).getChip() + chip << " X " << status->getHandRanking(ranking[0]).getMultiple() + multiple;
+		cout << chip << " X " << multiple;
 	}
 	else if (ranking.size() != 0)
 	{
-		cout << status->getHandRanking(ranking[0]).getChip() << " X " << status->getHandRanking(ranking[0]).getMultiple();
+		cout << status->getHandRanking(ranking.back()).getChip() << " X " << status->getHandRanking(ranking.back()).getMultiple();
 	}
 	cout << endl;
 	cout << "<스코어>" << endl;
@@ -202,25 +206,34 @@ void GameScene::PrintGame() const
 	cout << endl;
 	if (!selectedCard.empty())
 	{
-		cout << ranking[0];
+		cout << ranking.back();
 	}
 	cout << endl;
 	cout << "선택된 카드" << endl;
+
+	int sCardX = 1;
 	for (auto card : selectedCard)
 	{
-		card->PrintCard();
+		card->PrintCard(sCardX, 10);
+		sCardX += 10;
 		cout << "\t";
 	}
 	cout << endl;
 
-	handList->PrintHand();
+	handList->PrintHand(1, 20);
+
+	for (int i = 0; i < cursorIndex; i++)
+	{
+		cout << "\t";
+	}
+	cout << "▲" << endl;
 
 	cout << endl;
 	cout << "핸드: " << handCount << "\t버리기: " << discardCount << endl;
 	cout << endl;
 
-	cout << "커서 이동: ←, →" << endl;
 	cout << "z - 선택, x - 버리기, c - 그림 정렬, v - 숫자 정렬, d - 덱 조회" << endl;
+	cout << "Enter - 제출" << endl;
 	cout << endl;
 }
 
@@ -234,12 +247,12 @@ void GameScene::MakeAntie()
 void GameScene::PickCards()
 {
 	int key;
-	int index = 0;
+	cursorIndex = 0;
 	std::vector<PlayingCard*>::iterator iter;
 	iter = selectedCard.begin();
 	while (true)
 	{
-		cout << "커서: " << index + 1 << "번 카드" << endl;
+		cout << "커서: " << cursorIndex + 1 << "번 카드" << endl;
 		key = _getch();
 		if (key == 224)
 		{
@@ -248,16 +261,16 @@ void GameScene::PickCards()
 			{
 			// 왼쪽
 			case 75:
-				if (index > 0)
+				if (cursorIndex > 0)
 				{
-					index--;
+					cursorIndex--;
 				}
 				break;
 			//오른쪽
 			case 77:
-				if (index < handList->getHandSize() - 1)
+				if (cursorIndex < handList->getHandSize() - 1)
 				{
-					index++;
+					cursorIndex++;
 				}
 				break;
 			}
@@ -286,14 +299,14 @@ void GameScene::PickCards()
 			else if (key == 90 || key == 122)
 			{
 				// 이미 선택한 카드 선택 취소
-				if (FindCard(handList->getCard(index)))
+				if (FindCard(handList->getCard(cursorIndex)))
 				{
-					selectedCard.erase(remove(selectedCard.begin(), selectedCard.end(), handList->getCard(index)), selectedCard.end());
+					selectedCard.erase(remove(selectedCard.begin(), selectedCard.end(), handList->getCard(cursorIndex)), selectedCard.end());
 				}
 				// 카드 선택, 선택 카드가 5장보다 적을 때만
 				else if (selectedCard.size() < 5)
 				{
-					selectedCard.push_back(handList->getCard(index));
+					selectedCard.push_back(handList->getCard(cursorIndex));
 				}
 				// 족보 검사 함수
 				CheckRanking();
@@ -314,16 +327,16 @@ void GameScene::PickCards()
 				}
 			}
 
-			// 그림 정렬 - c
+			// 숫자 정렬 - c
 			else if (key == 67 || key == 99)
 			{
-				handList->SortShape();
+				handList->SortNum();
 			}
 
-			// 숫자 정렬 - v
+			// 그림 정렬 - v
 			else if (key == 86 || key == 118)
 			{
-				handList->SortNum();
+				handList->SortShape();
 			}
 
 			// 덱 조회 - d
@@ -333,21 +346,19 @@ void GameScene::PickCards()
 				deck.PrintDeck();
 			}
 		}
-		system("cls");
-		PrintGame();
+		RefreshScreen(0);
 	}
 }
 
 void GameScene::Trigger()
 {
 	// 화면 갱신
-	system("cls");
-	PrintGame();
+	RefreshScreen(0);
 	// 최상위 족보 가져오기
-	chip = status->getHandRanking(ranking[0]).getChip();
-	multiple = status->getHandRanking(ranking[0]).getMultiple();
+	chip = status->getHandRanking(ranking.back()).getChip();
+	multiple = status->getHandRanking(ranking.back()).getMultiple();
 	// 트리거 하기
-	for (auto& card : selectedCard)
+	for (auto& card : bestHand)
 	{
 		// 족보에 카드 칩 더하기
 		chip += card->getChip();
@@ -366,7 +377,7 @@ void GameScene::Trigger()
 	for (auto& joker : myJokers)
 	{
 		joker->AfterTrigger(nullptr);
-		RefreshScreen(500);
+		RefreshScreen(0);
 	}
 
 	score += chip * multiple;
@@ -378,6 +389,7 @@ void GameScene::CheckRanking()
 {
 	// 족보 벡터를 먼저 비우자
 	std::vector<std::string>().swap(ranking);
+	std::vector<PlayingCard*>().swap(bestHand);
 
 	// 선택된 카드 벡터를 복사해주자. 스트레이트를 검사하려면 숫자 순으로 정렬해야 한다. 
 	std::vector<PlayingCard*> sortedCards = selectedCard;
@@ -386,70 +398,88 @@ void GameScene::CheckRanking()
 			return *a < *b;
 		});
 
-	std::map<int, int> numberCount;
-	std::map<std::string, int> shapeCount;
+	std::map<int, std::vector<PlayingCard*>> numberCount;
+	std::map<std::string, std::vector<PlayingCard*>> shapeCount;
 	int cardCount = sortedCards.size();
 
 	for (auto& card : sortedCards) {
-		numberCount[card->getCardType().number]++;
-		shapeCount[card->getCardType().shape]++;
+		numberCount[card->getCardType().number].push_back(card);
+		shapeCount[card->getCardType().shape].push_back(card);
 	}
 
-	bool isFourCard = false, isStraight = true, isFlush = false, isTriple = false, isPair = false;
+	bool isFourCard = false, isStraight = false, isFlush = false, isTriple = false, isPair = false;
+	int straitCount = 0;
 
-	// 포 카드 체크만
-	for (auto& pair : numberCount)
+	// 하이 체크만
+	if (sortedCards.size() > 0)
 	{
-		if (pair.second == 4)
-		{
-			isFourCard = true;
-		}
-	}
-
-	// 스트레이트 체크만
-	if (cardCount == 5)
-	{
-		for (int i = 0; i < sortedCards.size() - 1; i++)
-		{
-			if (sortedCards[i]->getCardType().number + 1 != sortedCards[i + 1]->getCardType().number)
-			{
-				isStraight = false;
-			}
-		}
-	}
-	else
-	{
-		isStraight = false;
-	}
-
-	// 플러시 체크만
-	if (shapeCount.size() == 1 && cardCount == 5)
-	{
-		isFlush = true;
-	}
-
-	// 트리플 체크만
-
-	for (auto& pair : numberCount)
-	{
-		if (pair.second == 3)
-		{
-			isTriple = true;
-		}
+		ranking.push_back("하이");
 	}
 
 	// 페어 체크만
 	int countPair = 0;
 	for (auto& pair : numberCount)
 	{
-		if (pair.second == 2)
+		if (pair.second.size() == 2)
 		{
 			isPair = true;
+			for (int i = 0; i < pair.second.size(); i++)
+			{
+				bestHand.push_back(pair.second[i]);
+			}
 			countPair++;
 		}
 	}
 
-	// if문으로 제일 우선순위가 높은 족보부터 순서대로 넣음
+	// 트리플 체크만
+	for (auto& pair : numberCount)
+	{
+		if (pair.second.size() == 3)
+		{
+			isTriple = true;
+			for (int i = 0; i < pair.second.size(); i++)
+			{
+				bestHand.push_back(pair.second[i]);
+			}
+		}
+	}
+
+
+	// 스트레이트 체크만
+	if (cardCount == 5)
+	{
+		for (int i = 0; i < sortedCards.size() - 1; i++)
+		{
+			if (sortedCards[i]->getCardType().number - 1 == sortedCards[i + 1]->getCardType().number)
+			{
+				straitCount++;
+			}
+		}
+		if (straitCount == 4)
+		{
+			bestHand = selectedCard;
+			isStraight = true;
+		}
+	}
+
+	// 플러시 체크만
+	if (shapeCount.size() == 1 && cardCount == 5)
+	{
+		bestHand = selectedCard;
+		isFlush = true;
+	}
+
+	// 포 카드 체크만
+	for (auto& pair : numberCount)
+	{
+		if (pair.second.size() == 4)
+		{
+			bestHand = pair.second;
+			isFourCard = true;
+		}
+	}
+
+	// if문으로 제일 우선순위가 높은 족보를 마지막에 넣음
 	/*
 	족보 규칙
 	하이 카드 :			숫자가 높은 단일 카드. 5×1
@@ -466,58 +496,10 @@ void GameScene::CheckRanking()
 	플러시 파이브 :		동일 문양과 랭크로 된 파이브 카드. 200*16
 	*/
 
-	// 플러시 파이브
-	if ((numberCount.size() == 1 && shapeCount.size() == 1) && cardCount == 5)
+	// 원 페어
+	if (isPair)
 	{
-		ranking.push_back("플러시 파이브");
-	}
-
-	// 플러시 하우스
-	if ((cardCount == 5 && shapeCount.size() == 1) && (isTriple && isPair))
-	{
-		ranking.push_back("플러시 하우스");
-	}
-
-	// 파이브 카드
-	if (cardCount == 5 && numberCount.size() == 1)
-	{
-		ranking.push_back("파이브 카드");
-	}
-
-	// 스트레이트 플러시
-	if (isStraight && (shapeCount.size() == 1))
-	{
-		ranking.push_back("스트레이트 플러시");
-	}
-
-	// 포 카드
-	if (isFourCard)
-	{
-		ranking.push_back("포 카드");
-	}
-
-	// 풀하우스
-	if (isTriple && isPair)
-	{
-		ranking.push_back("풀하우스");
-	}
-
-	// 플러시
-	if (isFlush)
-	{
-		ranking.push_back("플러시");
-	}
-
-	// 스트레이트
-	if (isStraight)
-	{
-		ranking.push_back("스트레이트");
-	}
-
-	// 트리플
-	if (isTriple)
-	{
-		ranking.push_back("트리플");
+		ranking.push_back("원 페어");
 	}
 
 	// 투 페어
@@ -526,15 +508,68 @@ void GameScene::CheckRanking()
 		ranking.push_back("투 페어");
 	}
 
-	// 원 페어
-	if (isPair)
+	// 트리플
+	if (isTriple)
 	{
-		ranking.push_back("원 페어");
+		ranking.push_back("트리플");
 	}
 
-	if (sortedCards.size() > 0)
+	// 스트레이트
+	if (isStraight)
 	{
-		ranking.push_back("하이");
+		ranking.push_back("스트레이트");
+	}
+
+	// 플러시
+	if (isFlush)
+	{
+		ranking.push_back("플러시");
+	}
+
+	// 풀하우스
+	if (isTriple && isPair)
+	{
+		bestHand = selectedCard;
+		ranking.push_back("풀하우스");
+	}
+
+	// 포 카드
+	if (isFourCard)
+	{
+		ranking.push_back("포 카드");
+	}
+
+	// 스트레이트 플러시
+	if (isStraight && (shapeCount.size() == 1))
+	{
+		ranking.push_back("스트레이트 플러시");
+	}
+
+	// 파이브 카드
+	if (cardCount == 5 && numberCount.size() == 1)
+	{
+		ranking.push_back("파이브 카드");
+		bestHand = selectedCard;
+	}
+
+	// 플러시 하우스
+	if ((cardCount == 5 && shapeCount.size() == 1) && (isTriple && isPair))
+	{
+		ranking.push_back("플러시 하우스");
+		bestHand = selectedCard;
+	}
+
+	// 플러시 파이브
+	if ((numberCount.size() == 1 && shapeCount.size() == 1) && cardCount == 5)
+	{
+		ranking.push_back("플러시 파이브");
+		bestHand = selectedCard;
+	}
+
+	// 아무것도 만족하지 않으면 하이카드만 넣기
+	if (sortedCards.size() > 0 && !isFourCard && !isStraight && !isFlush && !isTriple && !isPair)
+	{
+		bestHand.push_back(sortedCards.back());
 	}
 }
 
