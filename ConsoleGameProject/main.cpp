@@ -6,8 +6,8 @@ int main()
     HWND consoleWindow = GetConsoleWindow();
 
     // 너비, 높이
-    int desiredWidth = 1280;
-    int desiredHeight = 720;
+    int desiredWidth = 1600;
+    int desiredHeight = 1000;
 
     // 모니터 해상도를 가져옴
     RECT desktop;
@@ -26,6 +26,11 @@ int main()
 
     // 초록 화면
     //system("color 2F");
+
+    CONSOLE_CURSOR_INFO c = { 0 };
+    c.dwSize = 1; //두께 : 1
+    c.bVisible = 0; //커서 숨기기
+    SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &c);
 
 	MainMenuScene mainMenu;
 	while (true)

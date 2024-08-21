@@ -1,6 +1,8 @@
 #pragma once
 #include <iostream>
 #include <Windows.h>
+#include <map>
+#include <functional>
 
 using std::cout;
 using std::endl;
@@ -26,6 +28,3 @@ enum Color{
 
 void gotoxy(int x, int y);
 void TextColor(int font, int backGround);
-void PrintCardFrame(int x, int y);
-void PrintBackground();
-

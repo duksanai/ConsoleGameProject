@@ -7,6 +7,7 @@
 
 #include "PlayingCard.h"
 #include "Hand.h"
+#include "Util.h"
 
 class Deck
 {
@@ -22,6 +23,7 @@ public:
 	void CountCards();
 	PlayingCard* PopCard();
 	void setLastNum(int num);
+	void ClearSelected();
 
 private:
 	std::vector<PlayingCard*> cards;

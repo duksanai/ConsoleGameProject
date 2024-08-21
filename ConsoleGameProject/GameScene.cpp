@@ -34,42 +34,201 @@ void GameScene::GameInit(Deck deck)
 void GameScene::InitJoker()
 {
 #pragma region 조커 생성
-	// 임시로 조커 3개 넣기
-	// 1. 조커 - 트리거 완료 후 - +4의 배수를 획득
-	// 2. 인색한 조커 - 트리거 시 - 다이아몬드 문양 카드를 플레이할 때마다 +3의 배수 획득
-	// 3. 교활한 조커 - 트리거 완료 후 - 플레이한 핸드에 페어 포함 시 +50개의 칩을 획득
 
 	int* pMul = &multiple;
 	int* pChip = &chip;
 
-	PushJoker("조커", "+4의 배수를 획득", "afterTrigger", [pMul](PlayingCard* card)
+	PushJoker("조커", "+4의 배수를 획득", 0, "afterTrigger", [pMul](PlayingCard* card)
 		{
 			*pMul += 4;
-			Sleep(500);
+			Sleep(300);
 		});
 
-	PushJoker("인색한 조커", "다이아몬드 문양 카드를 플레이할 때마다 +3의 배수 획득", "atTrigger", [pMul](PlayingCard* card)
+	PushJoker("인색한 조커", "다이아몬드 문양 카드를 플레이할 때마다 +3의 배수 획득", 0, "atTrigger", [pMul](PlayingCard* card)
 		{
 			if (card->getShape() == "◆")
 			{
 				*pMul += 3;
-				Sleep(500);
+				Sleep(300);
 			}
-
 		});
 
-	PushJoker("교활한 조커", "플레이한 핸드에 페어 포함 시 +50개의 칩을 획득", "afterTrigger", [=](PlayingCard* card)
+	PushJoker("음욕 조커", "하트 문양 카드를 플레이할 때마다 +3의 배수 획득", 0, "atTrigger", [pMul](PlayingCard* card)
 		{
-			std::vector<std::string>::iterator findPair = find(ranking.begin(), ranking.end(), "원 페어");
+			if (card->getShape() == "♥")
+			{
+				*pMul += 3;
+				Sleep(300);
+			}
+		});
+
+	PushJoker("분노하는 조커", "스페이드 문양 카드를 플레이해 득점할 때마다 +3 배수를 획득합니다.", 0, "atTrigger", [pMul](PlayingCard* card)
+		{
+			if (card->getShape() == "♠")
+			{
+				*pMul += 3;
+				Sleep(300);
+			}
+		});
+
+	PushJoker("탐욕스러운 조커", "클럽 문양 카드를 플레이할 때마다 +3의 배수 획득", 0, "atTrigger", [pMul](PlayingCard* card)
+		{
+			if (card->getShape() == "♣")
+			{
+				*pMul += 3;
+				Sleep(300);
+			}
+		});
+
+	PushJoker("엉뚱한 조커", "플레이한 핸드에 트리플 포함 시 +12 배수를 획득합니다.", 0, "afterTrigger", [=](PlayingCard* card)
+		{
+			std::vector<std::string>::iterator findPair = find(ranking.begin(), ranking.end(), "트리플");
 			if (findPair == ranking.end())
 			{
 				
 			}
 			else
 			{
-				*pChip += 50;
-				Sleep(500);
+				*pMul += 12;
+				Sleep(300);
 			}
+		});
+
+	PushJoker("미친 조커", "플레이한 핸드에 포카드 포함 시 +20 배수를 획득합니다.", 0, "afterTrigger", [=](PlayingCard* card)
+		{
+			std::vector<std::string>::iterator findPair = find(ranking.begin(), ranking.end(), "포 카드");
+			if (findPair == ranking.end())
+			{
+				
+			}
+			else
+			{
+				*pMul += 20;
+				Sleep(300);
+			}
+		});
+
+	PushJoker("정신나간 조커", "플레이한 핸드에 스트레이트 포함 시 +12 배수를 획득합니다.", 0, "afterTrigger", [=](PlayingCard* card)
+		{
+			std::vector<std::string>::iterator findPair = find(ranking.begin(), ranking.end(), "스트레이트");
+			if (findPair == ranking.end())
+			{
+				
+			}
+			else
+			{
+				*pMul += 12;
+				Sleep(300);
+			}
+		});
+
+	PushJoker("괴짜 조커", "플레이한 핸드에 플러시 포함 시 +10 배수를 획득합니다.", 0, "afterTrigger", [=](PlayingCard* card)
+		{
+			std::vector<std::string>::iterator findPair = find(ranking.begin(), ranking.end(), "플러시");
+			if (findPair == ranking.end())
+			{
+				
+			}
+			else
+			{
+				*pMul += 10;
+				Sleep(300);
+			}
+		});
+
+	PushJoker("교활한 조커", "플레이한 핸드에 페어 포함 시 +50개의 칩을 획득", 0, "afterTrigger", [=](PlayingCard* card)
+		{
+			std::vector<std::string>::iterator findPair = find(ranking.begin(), ranking.end(), "원 페어");
+			if (findPair == ranking.end())
+			{
+
+			}
+			else
+			{
+				*pChip += 50;
+				Sleep(300);
+			}
+		});
+
+	PushJoker("악랄한 조커", "플레이한 핸드에 트리플 포함 시 칩 +100개를 획득합니다.", 0, "afterTrigger", [=](PlayingCard* card)
+		{
+			std::vector<std::string>::iterator findPair = find(ranking.begin(), ranking.end(), "트리플");
+			if (findPair == ranking.end())
+			{
+
+			}
+			else
+			{
+				*pChip += 100;
+				Sleep(300);
+			}
+		});
+
+	PushJoker("영리한 조커", "플레이한 핸드에 포카드 포함 시 칩 +150개를 획득합니다.", 0, "afterTrigger", [=](PlayingCard* card)
+		{
+			std::vector<std::string>::iterator findPair = find(ranking.begin(), ranking.end(), "포카드");
+			if (findPair == ranking.end())
+			{
+
+			}
+			else
+			{
+				*pChip += 150;
+				Sleep(300);
+			}
+		});
+
+	PushJoker("기만적인 조커", "플레이한 핸드에 스트레이트 포함 시 칩 +100개를 획득합니다.", 0, "afterTrigger", [=](PlayingCard* card)
+		{
+			std::vector<std::string>::iterator findPair = find(ranking.begin(), ranking.end(), "스트레이트");
+			if (findPair == ranking.end())
+			{
+
+			}
+			else
+			{
+				*pChip += 100;
+				Sleep(300);
+			}
+		});
+
+	PushJoker("간교한 조커", "플레이한 핸드에 플러시 포함 시 칩 +80개를 획득합니다.", 0, "afterTrigger", [=](PlayingCard* card)
+		{
+			std::vector<std::string>::iterator findPair = find(ranking.begin(), ranking.end(), "플러시");
+			if (findPair == ranking.end())
+			{
+
+			}
+			else
+			{
+				*pChip += 80;
+				Sleep(300);
+			}
+		});
+
+	PushJoker("인쇄 오류", "+?? 배수", 0, "afterTrigger", [pMul](PlayingCard* card)
+		{
+			std::random_device rd();
+			std::mt19937 gen(rd);
+			std::uniform_int_distribution<> dist(1, 23);
+
+			*pMul += dist(gen);
+			Sleep(300);
+		});
+
+	PushJoker("캐번디시", "X3 배수를 획득합니다. 라운드 종료 시 1/1000 확률로 이 카드가 파괴됩니다.", 0, "afterTrigger", [&](PlayingCard* card)
+		{
+			std::random_device rd();
+			std::mt19937 gen(rd);
+			std::uniform_int_distribution<> dist(0, 999);
+			std::vector<std::string>::iterator findJoker = find(myJokers.begin(), myJokers.end(), "캐번디시");
+			*pMul *= 3;
+			if (dist(gen) > 998)
+			{
+
+				myJokers.erase(remove(myJokers.begin(), myJokers.end(), ))
+			}
+			Sleep(300);
 		});
 #pragma endregion
 }
@@ -139,6 +298,7 @@ void GameScene::GameStart()
 void GameScene::StartBlind(const int currentBlind)
 {
 	score = 0;
+	cursorIndex = 0;
 	deck.Shuffle();
 
 	hand = status->getHand();
@@ -151,16 +311,18 @@ void GameScene::StartBlind(const int currentBlind)
 		// 패에 카드 추가
 		for (int i = handList->getHandSize(); i < hand; i++)
 		{
+			RefreshScreen(70);
 			handList->AddCard(deck.PopCard());
 		}
 
 		std::vector<PlayingCard*>().swap(selectedCard);
 		std::vector<std::string>().swap(ranking);
+		std::vector<PlayingCard*>().swap(bestHand);
 
 		chip = 0;
 		multiple = 0;
 
-		RefreshScreen(500);
+		RefreshScreen(0);
 		PickCards();
 		// 점수 넘겼으면
 		if (score >= stageInfo[currentBlind]->getScoreDeadLine())
@@ -168,6 +330,7 @@ void GameScene::StartBlind(const int currentBlind)
 			cout << "블라인드 클리어!" << endl;
 			stageInfo[currentBlind]->setClear(true);
 			deck.RestoreDeck();
+			deck.ClearSelected();
 			Sleep(1000);
 			break;
 		}
@@ -201,38 +364,36 @@ void GameScene::PrintGame() const
 	cout << "<보유한 조커>" << endl;
 	for (auto joker : myJokers)
 	{
-		cout << joker->getName() << ": " << joker->getToolTip() << endl;
+		joker->PrintJoker();
 	}
 	cout << endl;
 	if (!selectedCard.empty())
 	{
 		cout << ranking.back();
 	}
-	cout << endl;
-	cout << "선택된 카드" << endl;
 
-	int sCardX = 1;
-	for (auto card : selectedCard)
+	cout << endl;
+	cout << "<적용 카드>" << endl;
+	int sCardX = 2;
+	for (auto card : bestHand)
 	{
-		card->PrintCard(sCardX, 10);
-		sCardX += 10;
-		cout << "\t";
+		card->PrintCard(sCardX, 15);
+		sCardX += 22;
 	}
 	cout << endl;
 
-	handList->PrintHand(1, 20);
+	handList->PrintHand(2, 32);
 
-	for (int i = 0; i < cursorIndex; i++)
-	{
-		cout << "\t";
-	}
+	// 커서
+	gotoxy(cursorIndex * 22 + 11, 47);
 	cout << "▲" << endl;
 
 	cout << endl;
 	cout << "핸드: " << handCount << "\t버리기: " << discardCount << endl;
 	cout << endl;
 
-	cout << "z - 선택, x - 버리기, c - 그림 정렬, v - 숫자 정렬, d - 덱 조회" << endl;
+	cout << "z - 선택, x - 버리기" << endl;
+	cout << "c - 그림 정렬, v - 숫자 정렬, d - 덱 조회" << endl;
 	cout << "Enter - 제출" << endl;
 	cout << endl;
 }
@@ -291,7 +452,6 @@ void GameScene::PickCards()
 					deck.UsedCards(selectedCard);
 					// 패에서 선택한 카드 제거
 					handList->Discard(selectedCard);
-					std::vector<PlayingCard*>().swap(selectedCard);
 					return;
 				}
 			}
@@ -301,11 +461,13 @@ void GameScene::PickCards()
 				// 이미 선택한 카드 선택 취소
 				if (FindCard(handList->getCard(cursorIndex)))
 				{
+					handList->getCard(cursorIndex)->Select(false);
 					selectedCard.erase(remove(selectedCard.begin(), selectedCard.end(), handList->getCard(cursorIndex)), selectedCard.end());
 				}
 				// 카드 선택, 선택 카드가 5장보다 적을 때만
 				else if (selectedCard.size() < 5)
 				{
+					handList->getCard(cursorIndex)->Select(true);
 					selectedCard.push_back(handList->getCard(cursorIndex));
 				}
 				// 족보 검사 함수
@@ -321,7 +483,6 @@ void GameScene::PickCards()
 					deck.UsedCards(selectedCard);
 					// 패에서 선택한 카드 제거
 					handList->Discard(selectedCard);
-					std::vector<PlayingCard*>().swap(selectedCard);
 					discardCount--;
 					return;
 				}
@@ -357,13 +518,14 @@ void GameScene::Trigger()
 	// 최상위 족보 가져오기
 	chip = status->getHandRanking(ranking.back()).getChip();
 	multiple = status->getHandRanking(ranking.back()).getMultiple();
+	
 	// 트리거 하기
 	for (auto& card : bestHand)
 	{
 		// 족보에 카드 칩 더하기
 		chip += card->getChip();
 
-		RefreshScreen(500);
+		RefreshScreen(300);
 
 		// 트리거할 때 조커 어빌리티
 		for (auto& joker : myJokers)
@@ -381,7 +543,7 @@ void GameScene::Trigger()
 	}
 
 	score += chip * multiple;
-	RefreshScreen(500);
+	RefreshScreen(300);
 }
 
 // 족보를 체크하는 함수
@@ -569,11 +731,11 @@ void GameScene::CheckRanking()
 	// 아무것도 만족하지 않으면 하이카드만 넣기
 	if (sortedCards.size() > 0 && !isFourCard && !isStraight && !isFlush && !isTriple && !isPair)
 	{
-		bestHand.push_back(sortedCards.back());
+		bestHand.push_back(sortedCards[0]);
 	}
 }
 
-void GameScene::PushJoker(const std::string& name, const std::string& toolTip, const std::string& abilityType, std::function<void(PlayingCard* card)> function)
+void GameScene::PushJoker(const std::string& name, const std::string& toolTip, const int grade, const std::string& abilityType, std::function<void(PlayingCard* card)> function)
 {
 	Joker* joker = new Joker(name, toolTip);
 	if (abilityType == "passive")
@@ -588,7 +750,7 @@ void GameScene::PushJoker(const std::string& name, const std::string& toolTip, c
 	{
 		joker->AfterTrigger = function;
 	}
-	myJokers.push_back(joker);
+	jokers.push_back(joker);
 }
 
 void GameScene::PrintResult() const

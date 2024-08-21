@@ -2,11 +2,13 @@
 
 void Hand::PrintHand(int x, int y)const
 {
+	gotoxy(x, y - 3);
+	cout << "<ÆÐ>" << endl;
 	for (auto card : handList)
 	{
 		card->PrintCard(x, y);
 		std::cout << "\t";
-		x += 18;
+		x += 22;
 	}
 	std::cout << std::endl;
 }

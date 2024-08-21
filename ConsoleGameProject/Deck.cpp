@@ -117,4 +117,12 @@ void Deck::setLastNum(int num)
 	lastNum = num;
 }
 
+void Deck::ClearSelected()
+{
+	for (auto& card : cards)
+	{
+		card->Select(false);
+	}
+}
+
 
