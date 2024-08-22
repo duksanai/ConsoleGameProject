@@ -5,7 +5,7 @@ void GameScene::GameInit(Deck deck)
 {
 	this->deck = deck;
 	handList = new Hand();
-	status = new PlayerStatus(4, 4, 8);
+	status = new PlayerStatus(4, 4, 8, 5);
 
 	deadLine[0] = 100;
 	deadLine[1] = 300;
@@ -22,23 +22,22 @@ void GameScene::GameInit(Deck deck)
 	antie = 1;
 	score = 0;
 	isEnter = false;
+	jokerIndex = -1;
 	
 
 	// 조커 테스트용
 	InitJoker();
-	
 
 	GameStart();
 }
 
 void GameScene::InitJoker()
 {
-#pragma region 조커 생성
-
 	int* pMul = &multiple;
 	int* pChip = &chip;
-
-	PushJoker("조커", "+4의 배수를 획득", 0, "afterTrigger", [pMul](PlayingCard* card)
+#pragma region 일반 조커
+	// 16개
+	PushJoker("조커", "+4의 배수를 획득", 0, "afterTrigger", [=](PlayingCard* card)
 		{
 			*pMul += 4;
 			Sleep(300);
@@ -208,29 +207,98 @@ void GameScene::InitJoker()
 
 	PushJoker("인쇄 오류", "+?? 배수", 0, "afterTrigger", [pMul](PlayingCard* card)
 		{
-			std::random_device rd();
-			std::mt19937 gen(rd);
+			std::random_device rd;
+			std::mt19937 gen(rd());
 			std::uniform_int_distribution<> dist(1, 23);
 
 			*pMul += dist(gen);
 			Sleep(300);
 		});
 
-	PushJoker("캐번디시", "X3 배수를 획득합니다. 라운드 종료 시 1/1000 확률로 이 카드가 파괴됩니다.", 0, "afterTrigger", [&](PlayingCard* card)
+	PushJoker("캐번디시", "X3 배수를 획득합니다. 라운드 종료 시 1/1000 확률로 이 카드가 파괴됩니다.", 0, "afterTrigger", [=](PlayingCard* card)
 		{
-			std::random_device rd();
-			std::mt19937 gen(rd);
+			std::random_device rd;
+			std::mt19937 gen(rd());
 			std::uniform_int_distribution<> dist(0, 999);
-			std::vector<std::string>::iterator findJoker = find(myJokers.begin(), myJokers.end(), "캐번디시");
 			*pMul *= 3;
-			if (dist(gen) > 998)
-			{
-
-				myJokers.erase(remove(myJokers.begin(), myJokers.end(), ))
+			if (dist(gen) == 999)
+			{ 
+				for (Joker* joker : myJokers)
+				{
+					if (joker->getName() == "캐번디시")
+					{
+						myJokers.erase(remove(myJokers.begin(), myJokers.end(), joker), myJokers.end());
+					}
+				}
 			}
 			Sleep(300);
 		});
 #pragma endregion
+#pragma region 희귀 조커
+	// 5개
+	PushJoker("조커 스탠실", "빈 조커 슬롯마다 X1 배수를 획득합니다. 조커 스텐실은 빈 슬롯으로 간주", 1, "afterTrigger", [=](PlayingCard* card)
+		{
+			int multi;
+			multi = status->getJokerSlot() - myJokers.size() + 1;
+			*pMul *= multi;
+			Sleep(300);
+		});
+	PushJoker("피보나치", "에이스, 2, 3, 5, 8을 플레이해 득점할 때마다 +8 배수를 획득합니다.", 1, "atTrigger", [=](PlayingCard* card)
+		{
+			if (card->getCardType().number == 1 ||
+				card->getCardType().number == 2 ||
+				card->getCardType().number == 3 ||
+				card->getCardType().number == 5 ||
+				card->getCardType().number == 8)
+			{
+				*pMul += 8;
+				Sleep(300);
+			}
+		});
+	PushJoker("도보 여행자", "플레이해 득점한 카드에 칩 +4개를 영구적으로 추가합니다.", 1, "atTrigger", [=](PlayingCard* card)
+		{
+			card->AddChips(4);
+			Sleep(300);
+		});
+	PushJoker("곡예사", "라운드의 마지막 핸드일 경우 X3 배수를 획득합니다.", 1, "afterTrigger", [=](PlayingCard* card)
+		{
+			if (handCount == 0)
+			{
+				*pMul *= 3;
+			}
+		});
+	PushJoker("혈석", "하트 카드를 플레이 했을 경우 카드마다 1/3 확률로 X2 배수를 획득합니다.", 1, "atTrigger", [=](PlayingCard* card)
+		{
+			if (card->getCardType().shape == "♥")
+			{
+				std::random_device rd;
+				std::mt19937 gen(rd());
+				std::uniform_int_distribution<> dist(0, 2);
+
+				int gatcha = dist(gen);
+				if (gatcha == 2)
+				{
+					*pMul *= 2;
+					Sleep(300);
+				}
+			}
+		});
+#pragma endregion
+#pragma region 영웅 조커
+	// 1개
+	PushJoker("야구 카드", "각 희귀 조커마다 X2 배수를 획득합니다.", 2, "afterTrigger", [=](PlayingCard* card)
+		{
+			for (Joker* joker : myJokers)
+			{
+				if (joker->getJokerGrade() == 1)
+				{
+					*pMul *= 2;
+					Sleep(300);
+				}
+			}
+		});
+#pragma endregion
+
 }
 
 void GameScene::GameStart()
@@ -267,8 +335,15 @@ void GameScene::GameStart()
 				break;
 			case 50:
 				// 블라인드 건너뛰기
-				SkipBlind();
-				out = true;
+				if (currentBlind != 2)
+				{
+					SkipBlind();
+					out = true;
+				}
+				else
+				{
+					cout << "보스 블라인드는 스킵이 불가능합니다!" << endl;
+				}
 				break;
 			default:
 				cout << "다시 입력하세요. " << endl;
@@ -299,11 +374,16 @@ void GameScene::StartBlind(const int currentBlind)
 {
 	score = 0;
 	cursorIndex = 0;
+	rewardIndex = 0;
+	jokerIndex = -1;
 	deck.Shuffle();
 
 	hand = status->getHand();
 	handCount = status->getHandCount();
 	discardCount = status->getDiscardCount();
+
+	std::vector<int>().swap(rewardJokersIndex);
+	RandomPickJoker();
 
 	// 제출 카운트 만큼 혹은 데드라인을 넘길 때 까지 카드를 선택하고 제출하는 부분
 	while (true)
@@ -332,6 +412,7 @@ void GameScene::StartBlind(const int currentBlind)
 			deck.RestoreDeck();
 			deck.ClearSelected();
 			Sleep(1000);
+			Reward();
 			break;
 		}
 		// 제출 횟수 전부 소모
@@ -361,11 +442,19 @@ void GameScene::PrintGame() const
 	cout << score << endl;
 
 	cout << endl;
-	cout << "<보유한 조커>" << endl;
-	for (auto joker : myJokers)
+	cout << "<보유한 조커> - " << status->getJokerSlot() << "슬롯" << endl;
+	if (myJokers.size() != 0)
 	{
-		joker->PrintJoker();
+		for (int i = 0; i < myJokers.size(); i++)
+		{
+			if (i == jokerIndex)
+			{
+				cout << "▶ ";
+			}
+			myJokers[i]->PrintJoker();
+		}
 	}
+	
 	cout << endl;
 	if (!selectedCard.empty())
 	{
@@ -375,7 +464,7 @@ void GameScene::PrintGame() const
 	cout << endl;
 	cout << "<적용 카드>" << endl;
 	int sCardX = 2;
-	for (auto card : bestHand)
+	for (PlayingCard* card : bestHand)
 	{
 		card->PrintCard(sCardX, 15);
 		sCardX += 22;
@@ -386,7 +475,10 @@ void GameScene::PrintGame() const
 
 	// 커서
 	gotoxy(cursorIndex * 22 + 11, 47);
-	cout << "▲" << endl;
+	if (jokerIndex == -1)
+	{
+		cout << "▲" << endl;
+	}
 
 	cout << endl;
 	cout << "핸드: " << handCount << "\t버리기: " << discardCount << endl;
@@ -413,40 +505,44 @@ void GameScene::PickCards()
 	iter = selectedCard.begin();
 	while (true)
 	{
-		cout << "커서: " << cursorIndex + 1 << "번 카드" << endl;
 		key = _getch();
-		if (key == 224)
+		if (key == SPECIAL_KEY)
 		{
 			key = _getch();
 			switch (key)
 			{
 			// 왼쪽
-			case 75:
+			case KEY_LEFT:
 				if (cursorIndex > 0)
 				{
 					cursorIndex--;
 				}
 				break;
 			//오른쪽
-			case 77:
+			case KEY_RIGHT:
 				if (cursorIndex < handList->getHandSize() - 1)
 				{
 					cursorIndex++;
 				}
+				break;
+			//위쪽
+			case KEY_UP:
+				jokerIndex = 0;
+				JokerPick();
 				break;
 			}
 		}
 		else
 		{
 			// 엔터키 - 제출 버튼
-			if (key == 13)
+			if (key == KEY_ENTER)
 			{
 				if (!selectedCard.empty())
 				{
 					// 카드, 조커 트리거
 					isEnter = true;
-					Trigger();
 					handCount--;
+					Trigger();
 					isEnter = false;
 					// 선택한 카드들을 묘지에 추가
 					deck.UsedCards(selectedCard);
@@ -511,6 +607,52 @@ void GameScene::PickCards()
 	}
 }
 
+void GameScene::JokerPick()
+{
+	std::vector<int> pickedJokerIndex;
+
+	int key;
+	while (true)
+	{
+		RefreshScreen(0);
+		key = _getch();
+		if (key == SPECIAL_KEY)
+		{
+			key = _getch();
+			switch (key)
+			{
+			case KEY_UP:
+				if (jokerIndex > 0)
+				{
+					jokerIndex -= 1;
+				}
+				break;
+			case KEY_DOWN:
+				jokerIndex += 1;
+				if (jokerIndex > myJokers.size() - 1)
+				{
+					jokerIndex = -1;
+					return;
+				}
+				break;
+			}
+		}
+		else
+		{
+			// z - 조커 선택
+			if (key == 90 || key == 122)
+			{
+				pickedJokerIndex.push_back(jokerIndex);
+				if (pickedJokerIndex.size() == 2)
+				{
+					std::swap(myJokers[pickedJokerIndex[0]], myJokers[pickedJokerIndex[1]]);
+				}
+			}
+		}
+	}
+	
+}
+
 void GameScene::Trigger()
 {
 	// 화면 갱신
@@ -520,7 +662,7 @@ void GameScene::Trigger()
 	multiple = status->getHandRanking(ranking.back()).getMultiple();
 	
 	// 트리거 하기
-	for (auto& card : bestHand)
+	for (PlayingCard*& card : bestHand)
 	{
 		// 족보에 카드 칩 더하기
 		chip += card->getChip();
@@ -528,7 +670,7 @@ void GameScene::Trigger()
 		RefreshScreen(300);
 
 		// 트리거할 때 조커 어빌리티
-		for (auto& joker : myJokers)
+		for (Joker*& joker : myJokers)
 		{
 			joker->AtTrigger(card);
 			RefreshScreen(0);
@@ -536,7 +678,7 @@ void GameScene::Trigger()
 	}
 
 	// 트리거 후 조커 어빌리티
-	for (auto& joker : myJokers)
+	for (Joker*& joker : myJokers)
 	{
 		joker->AfterTrigger(nullptr);
 		RefreshScreen(0);
@@ -735,9 +877,167 @@ void GameScene::CheckRanking()
 	}
 }
 
+void GameScene::PrintRewards()
+{
+	int x = 20, y = 10;
+	gotoxy(x, y - 1);
+	cout << "┌──보상선택─────────────────────────────────────────────────────────────────────────────────┐";
+	for (int i = 0; i < rewardJokersIndex.size(); i++, y++)
+	{
+		gotoxy(x, y);
+		cout << "│ ";
+		if (rewardIndex == i)
+		{
+			cout << "▶ ";
+		}
+		jokers[rewardJokersIndex[i]]->PrintJoker();
+		gotoxy(x + 92, y);
+		cout << "│";
+		gotoxy(x, y + 1);
+	}
+	cout << "├───────────────────────────────────────────────────────────────────────────────────────────┤";
+	y++;
+	if (myJokers.size() != 0)
+	{
+		for (int i = 0; i < myJokers.size(); i++, y++)
+		{
+			gotoxy(x, y);
+			cout << "│ ";
+			if (jokerIndex == i)
+			{
+				cout << "▶ ";
+			}
+			myJokers[i]->PrintJoker();
+			gotoxy(x + 92, y);
+			cout << "│";
+		}
+	}
+	gotoxy(x, y);
+	cout << "└───────────────────────────────────────────────────────────────────────────────────────────┘";
+}
+
+void GameScene::Reward()
+{
+	int key;
+	while (true)
+	{
+		PrintRewards();
+		key = _getch();
+		if (key == SPECIAL_KEY)
+		{
+			key = _getch();
+			switch (key)
+			{
+			// 커서 이동
+			case KEY_UP:
+				if (rewardIndex > 0)
+				{
+					rewardIndex--;
+				}
+				break;
+			case KEY_DOWN:
+				if (rewardIndex < rewardJokersIndex.size() - 1)
+				{
+					rewardIndex++;
+				}
+				break;
+			}
+		}
+		else
+		{
+			// 조커 선택 - z키
+			if (key == 90 || key == 122)
+			{
+				// 최대 보유량을 넘지 않았을 경우 - 추가
+				if (myJokers.size() < status->getJokerSlot())
+				{
+					myJokers.push_back(jokers[rewardJokersIndex[rewardIndex]]);
+				}
+				// 최대 보유량일 경우 - 교체
+				else
+				{
+					std::swap(jokers[rewardJokersIndex[rewardIndex]], myJokers[ChangeJoker()]);
+				}
+				return;
+			}
+		}
+	}
+}
+
+void GameScene::RandomPickJoker()
+{
+	// 커먼 -> 70퍼, 언커먼 -> 20퍼, 레어 -> 10퍼
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_int_distribution<> dist(0, 9);
+	std::uniform_int_distribution<> common(0, 15);
+	std::uniform_int_distribution<> uncommon(16, 20);
+
+	int gatcha;
+	for (int i = 0; i < 3; i++)
+	{
+		gatcha = dist(gen);
+
+		// 커먼
+		if (gatcha < 7)
+		{
+			rewardJokersIndex.push_back(common(gen));
+		}
+		else if (gatcha < 9)
+		{
+			rewardJokersIndex.push_back(uncommon(gen));
+		}
+		else
+		{
+			rewardJokersIndex.push_back(21);
+		}
+	}
+	
+
+}
+
+int GameScene::ChangeJoker()
+{
+	jokerIndex = 0;
+	int key;
+	while (true)
+	{
+		PrintRewards();
+		key = _getch();
+		if (key == SPECIAL_KEY)
+		{
+			key = _getch();
+			switch (key)
+			{
+				// 커서 이동
+			case KEY_UP:
+				if (jokerIndex > 0)
+				{
+					jokerIndex--;
+				}
+				break;
+			case KEY_DOWN:
+				if (jokerIndex < myJokers.size() - 1)
+				{
+					jokerIndex++;
+				}
+				break;
+			}
+		}
+		else
+		{
+			// 조커 선택 - z키
+			if (key == 90 || key == 122)
+			{
+				return jokerIndex;
+			}
+		}
+	}
+}
+
 void GameScene::PushJoker(const std::string& name, const std::string& toolTip, const int grade, const std::string& abilityType, std::function<void(PlayingCard* card)> function)
 {
-	Joker* joker = new Joker(name, toolTip);
+	Joker* joker = new Joker(name, toolTip, grade);
 	if (abilityType == "passive")
 	{
 		joker->PassiveAbility = function;
@@ -759,6 +1059,7 @@ void GameScene::PrintResult() const
 
 void GameScene::SkipBlind()
 {
+	
 }
 
 bool GameScene::FindCard(PlayingCard* card)

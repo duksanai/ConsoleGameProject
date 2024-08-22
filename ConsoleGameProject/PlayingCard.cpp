@@ -6,15 +6,6 @@ PlayingCard::PlayingCard(const std::string& shape, const int number, const int c
 	isSelected = false;
 }
 
-//bool PlayingCard::operator<(const PlayingCard& other) const
-//{
-//	if (shape == other.shape)
-//	{
-//		return number < other.number;
-//	}
-//	return shape < other.shape;
-//}
-
 // ¼ýÀÚ
 bool PlayingCard::operator<(const PlayingCard& other) const
 {
@@ -66,6 +57,11 @@ int PlayingCard::getChip()
 void PlayingCard::Select(bool isSelected)
 {
 	this->isSelected = isSelected;
+}
+
+void PlayingCard::AddChips(int chips)
+{
+	chip += chips;
 }
 
 bool CardType::operator<(const CardType& rhs) const

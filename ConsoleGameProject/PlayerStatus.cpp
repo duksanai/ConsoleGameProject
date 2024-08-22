@@ -5,8 +5,8 @@ PlayerStatus::PlayerStatus()
 	InitHandRanking();
 }
 
-PlayerStatus::PlayerStatus(int handCount, int discardCount, int hand)
-	:handCount(handCount), discardCount(discardCount), hand(hand)
+PlayerStatus::PlayerStatus(int handCount, int discardCount, int hand, int jokerSlot)
+	:handCount(handCount), discardCount(discardCount), hand(hand), jokerSlot(jokerSlot)
 {
 	InitHandRanking();
 }
@@ -105,4 +105,9 @@ int PlayerStatus::getHandCount() const
 int PlayerStatus::getDiscardCount() const
 {
 	return discardCount;
+}
+
+int PlayerStatus::getJokerSlot() const
+{
+	return jokerSlot;
 }

@@ -1,8 +1,10 @@
 #pragma once
 
-#include <conio.h>
-#include <algorithm>
 #include <Windows.h>
+#include <algorithm>
+#include <random>
+#include <conio.h>
+#include <utility>
 
 #include "Deck.h"
 #include "PlayerStatus.h"
@@ -28,8 +30,13 @@ private:
 	void SkipBlind();
 	void MakeAntie();
 	void PickCards();
+	void JokerPick();
 	void Trigger();
 	void CheckRanking();
+	void PrintRewards();
+	void Reward();
+	void RandomPickJoker();
+	int ChangeJoker();
 	void PushJoker(const std::string& name, const std::string& toolTip, const int grade, const std::string& abilityType, std::function<void(PlayingCard* card)> function);
 	bool FindCard(PlayingCard* card);
 
@@ -42,6 +49,7 @@ private:
 	Hand* handList;
 	std::vector<Joker*> jokers;
 	std::vector<Joker*> myJokers;
+	std::vector<int> rewardJokersIndex;
 	std::vector<PlayingCard*> selectedCard;
 	std::vector<PlayingCard*> bestHand;
 	int deadLine[9];
@@ -55,6 +63,8 @@ private:
 	int handCount;
 	int discardCount;
 	int cursorIndex;
+	int rewardIndex;
 	bool isEnter;
+	int jokerIndex;
 };
 

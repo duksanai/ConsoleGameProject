@@ -1,8 +1,10 @@
 #include "Joker.h"
 
-Joker::Joker(const std::string& name, const std::string& toolTip)
-	:name(name), toolTip(toolTip)
+Joker::Joker(const std::string& name, const std::string& toolTip, const int jokerGrade)
+	:name(name), toolTip(toolTip), jokerGrade(jokerGrade)
 {
+	chip = 0;
+	multiple = 0;
 }
 
 void Joker::PrintJoker() const
@@ -19,14 +21,39 @@ void Joker::PrintJoker() const
 	TextColor(WHITE, BLACK);
 }
 
-std::string Joker::getName()
+std::string Joker::getName()const
 {
 	return name;
 }
 
-std::string Joker::getToolTip()
+std::string Joker::getToolTip()const
 {
 	return toolTip;
+}
+
+int Joker::getJokerGrade() const
+{
+	return jokerGrade;
+}
+
+void Joker::addChips(int chip)
+{
+	this->chip += chip;
+}
+
+void Joker::setPassiveAbility(std::function<void(PlayingCard* card)> function)
+{
+	PassiveAbility = function;
+}
+
+void Joker::setAtTrigger(std::function<void(PlayingCard* card)> function)
+{
+	AtTrigger = function;
+}
+
+void Joker::setAfterTrigger(std::function<void(PlayingCard* card)> function)
+{
+	AfterTrigger = function;
 }
 
 

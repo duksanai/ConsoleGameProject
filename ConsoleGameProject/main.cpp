@@ -3,6 +3,7 @@
 
 int main()
 {
+    srand(time(NULL));
     HWND consoleWindow = GetConsoleWindow();
 
     // 너비, 높이

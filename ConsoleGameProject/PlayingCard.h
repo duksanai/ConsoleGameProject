@@ -23,6 +23,7 @@ public:
 	std::string getShape();
 	int getChip();
 	void Select(bool isSelected);
+	void AddChips(int chips);
 
 private:
 	void PrintCardFrame(int x, int y)const;

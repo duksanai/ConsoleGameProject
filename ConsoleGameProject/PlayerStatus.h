@@ -7,7 +7,7 @@ class PlayerStatus
 {
 public:
 	PlayerStatus();
-	PlayerStatus(int handCount, int discardCount, int hand);
+	PlayerStatus(int handCount, int discardCount, int hand, int jokerSlot);
 public:
 	void PrintHandRanking()const;
 	HandRanking getHandRanking(const std::string& rank)const;
@@ -20,10 +20,12 @@ public:
 	int getHand()const;
 	int getHandCount()const;
 	int getDiscardCount()const;
+	int getJokerSlot()const;
 private:
 	std::map<std::string, HandRanking> handRankings;
 	int handCount;
 	int discardCount;
 	int hand;
+	int jokerSlot;
 };
 
