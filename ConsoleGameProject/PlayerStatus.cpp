@@ -86,7 +86,7 @@ void PlayerStatus::InitHandRanking()
 	handRankings.insert(std::make_pair("플러시", HandRanking(1, 35, 4)));
 	handRankings.insert(std::make_pair("풀하우스", HandRanking(1, 40, 4)));
 	handRankings.insert(std::make_pair("포 카드", HandRanking(1, 60, 7)));
-	handRankings.insert(std::make_pair("스트레이트", HandRanking(1, 100, 8)));
+	handRankings.insert(std::make_pair("스트레이트 플러시", HandRanking(1, 100, 8)));
 	handRankings.insert(std::make_pair("파이브 카드", HandRanking(1, 120, 12)));
 	handRankings.insert(std::make_pair("플러시 하우스", HandRanking(1, 140, 14)));
 	handRankings.insert(std::make_pair("플러시 파이브", HandRanking(1, 200, 16)));

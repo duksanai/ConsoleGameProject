@@ -23,11 +23,7 @@ Deck DeckSelectScene::DeckInit()
 			{
 				if (j == 0)
 				{
-					chip = 11;
-				}
-				else if (j >= 10)
-				{
-					chip = 10;
+					chip = 14;
 				}
 				else
 				{
@@ -45,11 +41,7 @@ Deck DeckSelectScene::DeckInit()
 			{
 				if (j == 0)
 				{
-					chip = 11;
-				}
-				else if (j >= 10)
-				{
-					chip = 10;
+					chip = 14;
 				}
 				else
 				{

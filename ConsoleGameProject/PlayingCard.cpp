@@ -41,7 +41,9 @@ void PlayingCard::PrintCard(const int x, int y)const
 	PrintCardFrame(x, y);
 	PrintSuit(shape, x, y);
 	PrintRank(number, x + 10, y + 7);
+	gotoxy(x, y + 14);
 	TextColor(WHITE, BLACK);
+	cout << chip;
 }
 
 std::string PlayingCard::getShape()

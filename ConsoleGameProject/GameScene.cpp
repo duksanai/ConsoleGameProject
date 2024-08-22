@@ -362,9 +362,10 @@ void GameScene::GameStart()
 			currentBlind++;
 		}
 
+		// 클리어 앤티 기준 변경
 		if (antie > 8)
 		{
-			PrintResult();
+			cout << "축하합니다! 모든 라운드를 클리어했습니다." << endl;
 			break;
 		}
 	}
@@ -388,16 +389,16 @@ void GameScene::StartBlind(const int currentBlind)
 	// 제출 카운트 만큼 혹은 데드라인을 넘길 때 까지 카드를 선택하고 제출하는 부분
 	while (true)
 	{
+		std::vector<PlayingCard*>().swap(selectedCard);
+		std::vector<std::string>().swap(ranking);
+		std::vector<PlayingCard*>().swap(bestHand);
+
 		// 패에 카드 추가
 		for (int i = handList->getHandSize(); i < hand; i++)
 		{
 			RefreshScreen(70);
 			handList->AddCard(deck.PopCard());
 		}
-
-		std::vector<PlayingCard*>().swap(selectedCard);
-		std::vector<std::string>().swap(ranking);
-		std::vector<PlayingCard*>().swap(bestHand);
 
 		chip = 0;
 		multiple = 0;
@@ -418,7 +419,8 @@ void GameScene::StartBlind(const int currentBlind)
 		// 제출 횟수 전부 소모
 		else if (handCount == 0)
 		{
-			PrintResult();
+			system("cls");
+			cout << "패배했습니다..." << endl;
 			break;
 		}
 	}
@@ -438,9 +440,12 @@ void GameScene::PrintGame() const
 		cout << status->getHandRanking(ranking.back()).getChip() << " X " << status->getHandRanking(ranking.back()).getMultiple();
 	}
 	cout << endl;
-	cout << "<스코어>" << endl;
 	cout << score << endl;
-
+	cout << "유효 족보: ";
+	if (!selectedCard.empty())
+	{
+		cout << ranking.back();
+	}
 	cout << endl;
 	cout << "<보유한 조커> - " << status->getJokerSlot() << "슬롯" << endl;
 	if (myJokers.size() != 0)
@@ -454,19 +459,16 @@ void GameScene::PrintGame() const
 			myJokers[i]->PrintJoker();
 		}
 	}
-	
-	cout << endl;
-	if (!selectedCard.empty())
+	for (int i = 0; i < status->getJokerSlot() - myJokers.size(); i++)
 	{
-		cout << ranking.back();
+		cout << endl;
 	}
 
-	cout << endl;
 	cout << "<적용 카드>" << endl;
 	int sCardX = 2;
 	for (PlayingCard* card : bestHand)
 	{
-		card->PrintCard(sCardX, 15);
+		card->PrintCard(sCardX, 16);
 		sCardX += 22;
 	}
 	cout << endl;
@@ -548,6 +550,7 @@ void GameScene::PickCards()
 					deck.UsedCards(selectedCard);
 					// 패에서 선택한 카드 제거
 					handList->Discard(selectedCard);
+					Sleep(1000);
 					return;
 				}
 			}
@@ -881,7 +884,7 @@ void GameScene::PrintRewards()
 {
 	int x = 20, y = 10;
 	gotoxy(x, y - 1);
-	cout << "┌──보상선택─────────────────────────────────────────────────────────────────────────────────┐";
+	cout << "┌─보상선택──────────────────────────────────────────────────────────────────────────────────┐";
 	for (int i = 0; i < rewardJokersIndex.size(); i++, y++)
 	{
 		gotoxy(x, y);
